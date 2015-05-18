@@ -69,6 +69,8 @@
 					<!-- <paper-input disabled floatinglabel="true" value="{{learningRate}} "label="learning rate">Learning Rate</paper-input> -->
 					<paper-button disabled>Remove Behavior</paper-button>
 					<paper-button on-click="{{addColorDefaults}}">Color Defaults</paper-button>
+					<paper-button disabled>Save Network</paper-button>
+					<paper-button disabled>Load Network</paper-button>
 
 					<!-- <paper-button on-click="{{toggleVideo}}">Video Paused: {{$.videoFeed.paused}}</paper-button> -->
 				</core-menu>
@@ -93,6 +95,7 @@
 						<paper-button raised flex id="initTrainingBtn" on-click="{{handleTrainingStarted}}"><span id="trainingtext">Init</span><paper-spinner id="trainingSpinner"></paper-spinner></paper-button>
 						<paper-button raised flex id="testBtn" on-click="{{handleTestingStarted}}">Run</paper-button>
 					</div>
+					<p>Hold the spacebar to associate the video with the highlighted output.</p>
 				</div>
 
 
@@ -198,6 +201,9 @@
 				this.updateLabels(this);
 			},
 			addColorDefaults: function() {
+				if(this.networkInitialized === true) {
+					return;
+				}
 				var red = {name:'red', action:'(function(){output.background = "red";})();'};
 				var green = {name:'green', action:'(function(){output.background = "green";})();'};
 				var blue = {name:'blue', action:'(function(){output.background = "blue";})();'};
