@@ -1,0 +1,289 @@
+<link rel="import" href="../core-item/core-item.html">
+<link rel="import" href="../paper-dialog/paper-action-dialog.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../mat-editor/mat-editor.html">
+<link rel="import" href="../core-selector/core-selector.html">
+<link rel="import" href="../jsnelgro-scaffold/jsnelgro-scaffold.html">
+<link rel="import" href="../jsnelgro-video-converter/jsnelgro-video-converter.html">
+<link rel="import" href="../jsnelgro-socketIO/jsnelgro-socketIO.html">
+<link rel="import" href="../jsnelgro-output-box/jsnelgro-output-box.html">
+<link rel="import" href="../jsnelgro-code-env/jsnelgro-code-env.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../paper-spinner/paper-spinner.html">
+
+
+<polymer-element name="jsnelgro-app" attributes="">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+			#outputActions {
+				/*position: absolute;*/
+				overflow-y: scroll;
+				/*height: 100%; */
+				background: #303030;
+				color: white;
+			}
+			.output-item {
+				height: 100%;
+				width: 100%;
+			}
+			.outputItem.core-selected {
+    			background: #202020;
+  			}
+  			#testBtn {
+  				/*position: absolute;*/
+  				/*left: 75%;*/
+  				/*top: 75%;*/
+  				display: none;
+  			}
+  			#trainingLight {
+				position: absolute;
+				background-color: rgba(253, 0, 0, 0);
+				border-radius: 19px;
+				height: 15px;
+				width: 15px;
+				margin: 10px;
+				right: 5px;
+  			}
+
+		</style>
+		<jsnelgro-scaffold>
+			<paper-action-dialog id="behaviorConstructor" heading="Behavior Constructor">
+				<div>
+				<paper-input label="name" id="userBehaviorName">behavior name...</paper-input>
+				<mat-editor height="250" id="codeEditor" linenumbers="true" model="{{currentUserFunction}}" mode="javascript"></mat-editor>
+				</div>
+				<div>
+				<paper-button on-click="{{testCode}}">Test Code</paper-button>
+				<paper-button dismissive>Cancel</paper-button>
+				<paper-button on-click="{{addBehavior}}">Add</paper-button>
+				</div>
+				<div style="width:75vw;"></div>
+			</paper-action-dialog>
+			<core-header-panel navigation flex mode="seamed">
+				<core-toolbar>Settings</core-toolbar>
+				<core-menu theme="core-dark-theme" vertical layout>
+					<!-- <paper-input disabled floatinglabel="true" value="{{learningRate}} "label="learning rate">Learning Rate</paper-input> -->
+					<paper-button disabled>Remove Behavior</paper-button>
+					<paper-button on-click="{{addColorDefaults}}">Color Defaults</paper-button>
+
+					<!-- <paper-button on-click="{{toggleVideo}}">Video Paused: {{$.videoFeed.paused}}</paper-button> -->
+				</core-menu>
+			</core-header-panel>
+			<div tool>Brainz</div>
+	    	<jsnelgro-socketIO id="sio"></jsnelgro-socketIO>
+	    	
+	    	<!-- <p>associating: {{associating}}</p> -->
+			<!-- <p>training: {{$.sio.training}}, updating?: {{training}}, {{$.outputActions.selectedModel.behavior.name}}</p> -->
+			<div horizontal layout style="height:100%; width: 100%; position: fixed;">
+				
+				<div vertical layout start-justified style="position:relative;">
+					<div id="trainingLight"></div>
+					<jsnelgro-video-converter id="videoFeed"></jsnelgro-video-converter center>
+					<core-selector selected="0" id="outputActions">
+						<template repeat="{{behavior in behaviors}}">
+							<div class="outputItem">{{behavior.name}}</div>
+						</template>			  
+					</core-selector>
+					<div layout horizontal>
+						<paper-button raised flex id="addBehaviorBtn" on-click="{{toggleBehaviorConstructor}}">Add Behavior</paper-button>
+						<paper-button raised flex id="initTrainingBtn" on-click="{{handleTrainingStarted}}"><span id="trainingtext">Init</span><paper-spinner id="trainingSpinner"></paper-spinner></paper-button>
+						<paper-button raised flex id="testBtn" on-click="{{handleTestingStarted}}">Run</paper-button>
+					</div>
+				</div>
+
+
+				<jsnelgro-output-box id="outputBox" flex end-justified></jsnelgro-output-box>
+			</div>
+
+			<paper-toast id="trainingToast" text="Training..."></paper-toast>
+			<paper-toast id="trainingCompleteToast" text="Training Complete!"></paper-toast>
+		</jsnelgro-scaffold>
+	</template>
+	<script>
+		Polymer('jsnelgro-app', {
+			ready: function() {
+				var self = this;
+				self.currentUserFunction = '(function(){\n\toutput.clear();\n\toutput.log("test");\n})();';
+				self.learningRate = 0.9;
+				self.networkInitialized = false;
+				self.socket = self.$.sio.socket;
+				self.sampleRate = self.$.videoFeed.sampleRate;
+				// self.behaviors = [{name:'red', action:function(){console.log('red chosen');}}, {name:'green'}, {name:'blue'}];
+				self.behaviors = [];
+				self.selectedBehavior = self.behaviors[0];
+				self.associating = false;
+				self.training = false;
+				self.testing = false;
+				self.results = {dominantIndex:0, response:[1,2,3]};
+				// self.$.outputBox.print('hello from the app class!');
+				// TODO: Setup this sandbox later...
+				// self.codeApi = {
+				// 	outputBox: self.$.outputBox,
+				// 	this: self.$.outputBox,
+				// 	print: self.$.outputBox.print,
+				// 	console: console
+				// }
+				
+				// local bubbling events
+				self.addEventListener('video-updated', function(data) {self.handleVideoFeed(self,data);});
+				self.addEventListener('training-started', function(ev){self.training=true;});
+				self.addEventListener('training-ended', function(ev){self.handleTrainingEnded(self);});
+				self.addEventListener('test-results', function(ev){self.handleTestResults(self, ev.detail);});
+				
+				// global keyboard events
+				addEventListener('keydown', function(event){self.handleKeyDown(self, event);});
+				addEventListener('keyup', function(event){self.handleKeyUp(self, event);});
+				self.updateLabels(self);
+			},
+			emitAssociation: function(self, imgData, behavior) {
+				var emitMessage = 'run test';
+				if (self.associating) {
+					emitMessage = 'associate';
+				}	
+				self.socket.emit(emitMessage, {
+					data: imgData,
+					behavior: behavior
+				});
+			},
+			handleVideoFeed: function(self, data) {
+				if (!self.training && (self.associating || self.testing) && self.behaviors.length !== 0) {
+					self.emitAssociation(self, data.detail.b64, self.getSelected(self).name);
+				}
+			},
+			handleKeyDown: function(self, event) {
+				if(self.$.behaviorConstructor.opened) {
+					return;
+				}
+				if (event.keyCode === 32 && self.behaviors.length !== 0) { //space
+					event.preventDefault();
+					self.$.trainingLight.style.backgroundColor = "rgba(253, 0, 0, 0.67)";
+					self.associating = true;
+				}
+				if(event.keyCode === 38) { //up
+					event.preventDefault();
+					self.$.outputActions.selectPrevious(true);
+				}
+				if(event.keyCode === 40) { //down
+					event.preventDefault();
+					self.$.outputActions.selectNext(true);
+				}
+			},
+			handleKeyUp: function(self, event) {
+				if (event.keyCode === 32) {
+					event.preventDefault();
+					self.associating = false;
+					self.$.trainingLight.style.backgroundColor = "rgba(253, 0, 0, 0)";
+				}
+			},
+			getSelected: function(self) {
+				return self.$.outputActions.selectedModel.behavior;
+			},
+			addBehavior:function(event, details, sender) {
+				var _name = this.$.userBehaviorName.value.trim().toLowerCase();
+				if(_name === '') {
+					return;
+				}
+				// TODO: need to sanitize and test the user script before adding to behaviors 
+				var _action = this.currentUserFunction;
+				var newBehavior = {name:_name, action:_action};
+				this.behaviors.push(newBehavior);
+				
+				this.$.userBehaviorName.value = '';
+				this.currentUserFunction = '(function(){\n\toutput.clear();\n\toutput.log("test");\n})();';
+				this.toggleBehaviorConstructor();
+				this.updateLabels(this);
+			},
+			addColorDefaults: function() {
+				var red = {name:'red', action:'(function(){output.background = "red";})();'};
+				var green = {name:'green', action:'(function(){output.background = "green";})();'};
+				var blue = {name:'blue', action:'(function(){output.background = "blue";})();'};
+				this.behaviors = [red,green,blue];
+				this.updateLabels(this);
+
+			},
+			removeBehavior:function(self, behavior){
+				// TODO
+				self.updateLabels(self);
+			},
+			updateLabels: function(self) {
+				var _labels = self.behaviors.map(function(el){return el.name;});
+				self.socket.emit('set labels', {
+					labels: _labels
+				});
+				return _labels;
+			},
+			handleTrainingStarted: function(event, details, sender) {
+				var self = this;
+				if(!this.associating && !this.testing) {
+					if(this.networkInitialized) {
+						this.$.trainingToast.show();
+						this.$.trainingSpinner.active = true;
+						// this.$.initTrainingBtn.appendChild(spinner);
+						this.$.trainingtext.innerHTML = "Training...";
+						this.socket.emit('start training');
+					}
+					else {
+						this.socket.emit('set network', {learningRate: self.learningRate});
+						this.networkInitialized = true;
+						this.$.trainingtext.innerHTML = 'Train';
+						this.$.addBehaviorBtn.disabled = true;
+					}
+				}
+			},
+			handleTrainingEnded: function(self) {
+				self.training=false;
+				self.$.initTrainingBtn.style.display = 'none';
+				self.$.testBtn.style.display = 'block';
+				this.$.trainingSpinner.active = false;
+				this.$.trainingToast.dismiss();
+				self.$.trainingCompleteToast.show();
+
+			},
+			handleTestingStarted: function(event, details, sender) {
+				if(!this.training && !this.associating) {
+					if(this.$.testBtn.innerHTML === 'Run') {
+						this.$.testBtn.innerHTML = 'Stop';
+					} else {
+						this.$.testBtn.innerHTML = 'Run';
+					}
+					this.testing = !this.testing;
+				}
+			},
+			handleTestResults: function(self, results) {
+				self.results = results;
+				self.runResultCode(self, self.behaviors[self.results.dominantIndex].action);
+				// console.log(results);
+			},
+			toggleBehaviorConstructor: function() {
+				this.$.behaviorConstructor.toggle();
+				// TODO: fix the bug where the editor is blank at first...
+				// this.$.codeEditor.focus();
+			},
+			toggleVideo: function() {
+				if(this.$.videoFeed.vidout.paused) {
+					this.$.videoFeed.vidout.play();
+				} else {
+					this.$.videoFeed.checkVideoSupport(this.$.videoFeed);
+				}
+				this.$.videoFeed.paused = !this.$.videoFeed.paused;
+			},
+			runResultCode: function(self, code) {
+				var data = self.results;
+				var output = self.$.outputBox;
+				eval(code);
+			},
+			testCode: function(ev, details, sender) {
+				var code = this.currentUserFunction;
+				var data = this.results;
+				var output = this.$.outputBox;
+				// TODO: unsafe, use sandbox. This works for now though.
+				eval(code);
+				// var plugin = new jailed.DynamicPlugin(code, this.codeApi)
+			}
+		});
+	</script>
+</polymer-element>

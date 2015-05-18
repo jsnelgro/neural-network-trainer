@@ -1,0 +1,37 @@
+<link rel="import" href="../mat-editor/mat-editor.html">
+<link rel="import" href="../paper-dialog/paper-action-dialog.html">
+
+<polymer-element name="jsnelgro-code-env" extends="paper-action-dialog" attributes="outputEnv">
+	<template>
+		<style>
+			:host {
+				/*display: block;*/
+			}
+		</style>
+		<div>
+			<paper-input label="name" id="userBehaviorName">behavior name...</paper-input>
+			<mat-editor height="250" linenumbers="true" model="{{currentUserFunction}}" mode="javascript"></mat-editor>
+		</div>
+		<div>
+			<paper-button dismissive>Cancel</paper-button>
+			<paper-button on-click="{{addBehavior}}">Add</paper-button>
+		</div>
+		<div style="width:75vw;"></div>
+	</template>
+	<script>
+		Polymer('jsnelgro-code-env',{
+			created: function() {
+				this.super(arguments);
+			},
+			ready: function() {
+				this.super(arguments);
+				var self = this;
+				self.currentUserFunction = '(function(data){\n\tlog();\n})();';
+				console.log(self.outputEnv);
+			},
+			addBehavior: function() {
+				this.fire('addBehavior');
+			}
+		});
+	</script>
+</polymer-element>

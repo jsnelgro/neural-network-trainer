@@ -1,0 +1,567 @@
+<!--
+@license
+Copyright (c) 2015 The ExpandJS authors. All rights reserved.
+This code may only be used under the BSD style license found at https://expandjs.github.io/LICENSE.txt
+The complete set of authors may be found at https://expandjs.github.io/AUTHORS.txt
+The complete set of contributors may be found at https://expandjs.github.io/CONTRIBUTORS.txt
+-->
+
+<!--
+This element is used to add input capabilities on a custom element.
+It extends the native html `template`.
+
+@element xp-input-base
+@description A custom element used to add input capabilities to a context element
+@group states
+@homepage http://www.expandjs.com/elements/xp-input-state
+
+@extends template
+
+@dependency polymer Polymer/polymer#^0.5
+@dependency expandjs ExpandJS/expandjs
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../expandjs/expandjs.html">
+
+<polymer-element name="xp-input-state" extends="template" attributes="changed checked context disabled empty error form injected invalid invalidMessage model name opCommitFrom opCommitTo opIndex opSanitize opUpdate opValidate primitive readonly required type value">
+
+    <script>
+        XPElement({
+
+            /**
+             * Fired when the input's model changes.
+             *
+             * @event xp-input-change
+             * @param {Element} firer
+             * @param {boolean} isChanged
+             * @param {*} model
+             * @bubbles
+             */
+
+            /*********************************************************************/
+
+            /**
+             * Finds the label.
+             *
+             * @method findLabel
+             * @returns {Element}
+             */
+            findLabel: function () {
+                var self = this, label = (self.context.id && XP.getElement('html /deep/ label[for="' + self.context.id + '"]'));
+                return label || XP.findParentElement(self.context, 'label');
+            },
+
+            /**
+             * Resets the input.
+             *
+             * @method reset
+             * @returns {Element}
+             */
+            reset: function () {
+                return XP.assign(this, this.initial);
+            },
+
+            /**
+             * Toggles the checked state.
+             *
+             * @method toggle
+             * @returns {Element}
+             */
+            toggle: function () {
+                var self = this;
+                if (self.primitive === 'boolean' && !self.disabled) { self.checked = !self.checked; }
+                return self;
+            },
+
+            /*********************************************************************/
+
+            /**
+             * Executes an operation asynchronously.
+             *
+             * @method asyncExecute
+             * @param {string} name
+             * @param {Array} [args]
+             * @returns {Element}
+             * @private
+             */
+            asyncExecute: function (name, args) {
+                var self = this;
+                XP.delay(function () { self.execute(name, args); });
+                return self;
+            },
+
+            /**
+             * Executes an operation.
+             *
+             * @method execute
+             * @param {string} name
+             * @param {Array} [args]
+             * @returns {Element}
+             * @private
+             */
+            execute: function (name, args) {
+                XP.assertArgument(XP.isString(name, true), 1, 'string');
+                XP.assertArgument(XP.isVoid(args) || XP.isArrayable(args), 2, 'Arrayable');
+                var self = this, method = 'op' + XP.capitalize(name);
+                if (self[method]) { self[method].apply(self.context, args); }
+                return self;
+            },
+
+            /**
+             * Refreshes the element.
+             *
+             * @method refresh
+             * @returns {Element}
+             * @private
+             */
+            refresh: function () {
+                var self = this;
+                self.execute('update');
+                self.execute('sanitize');
+                if (self.value || !self.required) { self.execute('validate'); }
+                return self;
+            },
+
+            /**
+             * Returns model representation of input's plain value.
+             *
+             * @method toModel
+             * @param {*} value
+             * @returns {boolean | number | string}
+             * @private
+             */
+            toModel: function (value) {
+                var self = this, from = XP.isPrimitive(value) ? value : null;
+                if (self.primitive === 'boolean') { return XP.toBoolean(from); }
+                if (self.primitive === 'number') { return XP.toNumber(from); }
+                return XP.toString(from);
+            },
+
+            /**
+             * Returns primitive representation of input's type
+             *
+             * @method toPrimitive
+             * @param {string} type
+             * @returns {string}
+             * @private
+             */
+            toPrimitive: function (type) {
+                if (type === 'checkbox') { return 'boolean'; }
+                if (type === 'number') { return 'number'; }
+                return 'string';
+            },
+
+            /**
+             * Returns plain value representation of input's model.
+             *
+             * @method toValue
+             * @param {*} model
+             * @returns {boolean | string}
+             * @private
+             */
+            toValue: function (model) {
+                var self = this, from = XP.isPrimitive(model) ? model : null;
+                if (self.primitive === 'boolean') { return XP.toBoolean(from, true); }
+                return XP.toString(from, true);
+            },
+
+            /*********************************************************************/
+
+            // OBSERVE
+            observe: {
+                'disabled name readonly required': 'refresh'
+            },
+
+            // PUBLISH
+            publish: {
+
+                /**
+                 * If set to true, the input's model is changed.
+                 *
+                 * @attribute changed
+                 * @type boolean
+                 * @default false
+                 */
+                changed: {reflect: true, value: false},
+
+                /**
+                 * If set to true, the input is checked.
+                 *
+                 * @attribute checked
+                 * @type boolean
+                 * @default false
+                 */
+                checked: {reflect: true, value: false},
+
+                /**
+                 * The context element.
+                 *
+                 * @attribute context
+                 * @type Element
+                 */
+                context: {reflect: false, value: null},
+
+                /**
+                 * If set to true, the input is disabled.
+                 *
+                 * @attribute disabled
+                 * @type boolean
+                 * @default false
+                 */
+                disabled: {reflect: true, value: false},
+
+                /**
+                 * If set to true, the input is empty.
+                 *
+                 * @attribute empty
+                 * @type boolean
+                 * @default false
+                 * @readonly
+                 */
+                empty: {reflect: true, value: false},
+
+                /**
+                 * The input's custom error message, used instead of `invalidMessage`.
+                 *
+                 * @attribute error
+                 * @type string
+                 * @default ""
+                 */
+                error: {reflect: true, value: ''},
+
+                /**
+                 * If set to true, the input is focused.
+                 *
+                 * @attribute focused
+                 * @type boolean
+                 * @default false
+                 * @readonly
+                 */
+                focused: {reflect: true, value: false},
+
+                /**
+                 * The input's form.
+                 *
+                 * @attribute form
+                 * @type Element
+                 */
+                form: {reflect: false, value: null},
+
+                /**
+                 * The appended input's element.
+                 *
+                 * @attribute injected
+                 * @type Element
+                 */
+                injected: {reflect: false, value: null},
+
+                /**
+                 * If set to true, the input's value is not valid.
+                 *
+                 * @attribute invalid
+                 * @type boolean
+                 * @default false
+                 */
+                invalid: {reflect: true, value: false},
+
+                /**
+                 * The input's system error message.
+                 *
+                 * @attribute invalidMessage
+                 * @type string
+                 * @default ""
+                 */
+                invalidMessage: {reflect: true, value: ''},
+
+                /**
+                 * The input's model.
+                 *
+                 * @attribute model
+                 * @type *
+                 */
+                model: {reflect: false, value: null},
+
+                /**
+                 * The input's name.
+                 *
+                 * @attribute name
+                 * @type string
+                 * @default ""
+                 */
+                name: {reflect: true, value: ''},
+
+                /**
+                 * The operation used to reflect input's element's `value` onto input.
+                 *
+                 * @attribute opCommitFrom
+                 * @type Function
+                 */
+                opCommitFrom: {reflect: false, value: null},
+
+                /**
+                 * The operation used to reflect input's `value` onto input's element.
+                 *
+                 * @attribute opCommitTo
+                 * @type Function
+                 */
+                opCommitTo: {reflect: false, value: null},
+
+                /**
+                 * The operation used to reflect input's `tabIndex` onto input's element.
+                 *
+                 * @attribute opCommitTo
+                 * @type Function
+                 */
+                opIndex: {reflect: false, value: null},
+
+                /**
+                 * The operation used to sanitize input's `value`.
+                 *
+                 * @attribute opSanitize
+                 * @type Function
+                 */
+                opSanitize: {reflect: false, value: null},
+
+                /**
+                 * The operation used to update input's element's attributes.
+                 *
+                 * @attribute opUpdate
+                 * @type Function
+                 */
+                opUpdate: {reflect: false, value: null},
+
+                /**
+                 * The operation used to validate input's `value`.
+                 *
+                 * @attribute opValidate
+                 * @type Function
+                 */
+                opValidate: {reflect: false, value: null},
+
+                /**
+                 * If set to true, the input is readonly.
+                 *
+                 * @attribute readonly
+                 * @type boolean
+                 * @default false
+                 */
+                readonly: {reflect: true, value: false},
+
+                /**
+                 * If set to true, the input is required.
+                 *
+                 * @attribute required
+                 * @type boolean
+                 * @default false
+                 */
+                required: {reflect: true, value: false},
+
+                /**
+                 * The input's type.
+                 *
+                 * @attribute type
+                 * @type string
+                 * @default "text"
+                 */
+                type: {reflect: true, value: 'text'},
+
+                /**
+                 * The input's plain value.
+                 *
+                 * @attribute value
+                 * @type string
+                 * @default ""
+                 */
+                value: {reflect: false, value: ''}
+            },
+
+            /**
+             * The context element.
+             *
+             * @property context
+             * @type Element
+             * @readonly
+             * @private
+             */
+//            get context() { return this.host || this.parentNode; },
+
+            /**
+             * The initial state.
+             *
+             * @property initial
+             * @type Object
+             * @readonly
+             */
+            initial: null,
+
+            /**
+             * The input's primitive type.
+             *
+             * @property primitive
+             * @type "boolean" | "number" | "string"
+             * @default "string"
+             * @readonly
+             */
+            primitive: 'string',
+
+            /**
+             * The list of primitives.
+             *
+             * @property primitives
+             * @type Array
+             * @default ["boolean", "number", "string"]
+             * @readonly
+             */
+            primitives: ['boolean', 'number', 'string'],
+
+            /*********************************************************************/
+
+            // OBSERVER
+            checkedChanged: function (pre, post) {
+
+                // Vars
+                var self = this;
+
+                // Checking
+                if (!self.injected) { return; }
+
+                // Setting
+                self.changed = self.initial.checked !== post;
+                self.model   = self.changed ? self.toModel(post) : self.initial.model;
+
+                // Committing
+                self.execute('commitTo');
+
+                // Firing
+                self.context.fire('xp-input-change', {firer: self.context, isChanged: self.changed, model: self.model});
+            },
+
+            // OBSERVER
+            contextChanged: function (pre, post) {
+                var self = this;
+                if (arguments.length < 2) { return; }
+                if (pre) { XP.unlisten(pre, {click: self.handleClickBound}); }
+                if (post) { XP.listen(post, {click: self.handleClickBound}); }
+            },
+
+            // OBSERVER
+            focusedChanged: function (pre, post) {
+                var self = this, label = self.findLabel();
+                if (label) { label.focused = post; }
+                if (!post) { self.execute('validate'); }
+            },
+
+            // OBSERVER
+            formChanged: function (pre, post) {
+                var self = this;
+                if (arguments.length < 2) { return; }
+                XP.unlisten(pre, {reset: self.handleChangeBound});
+                XP.listen(post, {reset: self.handleChangeBound});
+                self.refresh();
+            },
+
+            // OBSERVER
+            injectedChanged: function (pre, post) {
+                var self = this;
+                if (arguments.length < 2) { return; }
+                if (self.contextObserver) { self.contextObserver.disconnect(); }
+                if (XP.isElement(pre)) { XP.unlisten(pre, {blur: self.handleBlurBound, change: self.handleChangeBound, focus: self.handleFocusBound}); }
+                if (XP.isElement(post)) { XP.listen(post, {blur: self.handleBlurBound, change: self.handleChangeBound, focus: self.handleFocusBound}); }
+                self.mutated();
+                self.refresh();
+            },
+
+            // OBSERVER
+            modelChanged: function () {
+                this[this.primitive === 'boolean' ? 'checked' : 'value'] = this.toValue(this.model);
+            },
+
+            // OBSERVER
+            typeChanged: function (pre, post) {
+                var self = this;
+                self.primitive = self.toPrimitive(post);
+                self.refresh();
+            },
+
+            // OBSERVER
+            valueChanged: function (pre, post) {
+
+                // Vars
+                var self = this;
+
+                // Sanitizing
+                self.execute('sanitize');
+
+                // Checking
+                if (!self.injected || self.value !== post) { return; }
+
+                // Setting
+                self.changed = self.initial.value !== post;
+                self.empty   = self.value.length === 0;
+                self.model   = self.changed ? self.toModel(post) : self.initial.model;
+
+                // Committing
+                self.execute('commitTo');
+
+                // Validating
+                self.execute('validate');
+
+                // Firing
+                self.context.fire('xp-input-change', {firer: self.context, isChanged: self.changed, model: self.model});
+            },
+
+            /*********************************************************************/
+
+            // LISTENER
+            created: function () {
+                this.initial = {};
+            },
+
+            // LISTENER
+            mutated: function () {
+                var self = this;
+                if (!self.context) { return; }
+                self.asyncExecute('index', [Math.max(self.context.tabIndex, 0)]);
+                self.context.removeAttribute(self.injected ? 'tabindex' : '');
+                self.contextObserver = XP.onMutation(self.context, self.mutated.bind(self), {attributes: true, attributeFilter: ['tabindex']});
+            },
+
+            // LISTENER
+            ready: function () {
+                var self = this;
+                self.handleBlurBound   = self.handleBlur.bind(self);
+                self.handleChangeBound = self.handleChange.bind(self);
+                self.handleClickBound  = self.handleClick.bind(self);
+                self.handleFocusBound  = self.handleFocus.bind(self);
+                self.initial.checked    = self.checked = self.model && self.primitive === 'boolean' ? true : self.checked;
+                self.initial.value      = self.value   = self.model && self.primitive !== 'boolean' ? self.toValue(self.model) : self.value;
+                self.initial.model      = self.model   = self.checked || (self.value ? self.toModel(self.value) : self.model);
+                self.empty              = self.primitive !== 'boolean' && !self.value;
+            },
+
+            /*********************************************************************/
+
+            // HANDLER
+            handleBlur: function () {
+                this.focused = false;
+            },
+
+            // HANDLER
+            handleChange: function () {
+                this.execute('commitFrom');
+            },
+
+            // HANDLER
+            handleClick: function () {
+                if (this.context.focus) { this.context.focus(); }
+            },
+
+            // HANDLER
+            handleFocus: function () {
+                this.focused = !this.disabled;
+            }
+        });
+    </script>
+
+</polymer-element>

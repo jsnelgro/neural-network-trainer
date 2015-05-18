@@ -1,0 +1,44 @@
+{
+  "name": "mat-icon",
+  "license": "BSD-3-Clause",
+  "description": "A custom element used to display a Material Design icon",
+  "homepage": "http://www.expandjs.com/elements/mat-icon",
+  "authors": [
+    "Giuliano Rullo <g.rullo@expandjs.com>",
+    "Maurizio Stefàno <m.stefano@expandjs.com>",
+    "Robert Manolea <r.manolea@expandjs.com>"
+  ],
+  "keywords": [
+    "web-components"
+  ],
+  "main": [
+    "mat-icon.html"
+  ],
+  "ignore": [
+    "**/.*",
+    "bin",
+    "index.js",
+    "lib",
+    "node_modules",
+    "package.json"
+  ],
+  "dependencies": {
+    "expandjs": "ExpandJS/expandjs",
+    "mat-icons": "ExpandJS/mat-icons",
+    "mat-ink": "ExpandJS/mat-ink",
+    "xp-icon": "ExpandJS/xp-icon",
+    "polymer": "Polymer/polymer#^0.5"
+  },
+  "devDependencies": {
+    "mat-demo": "ExpandJS/mat-demo"
+  },
+  "_release": "599904e4b6",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "599904e4b6e44db7b686b77db4477b50631af0a2"
+  },
+  "_source": "git://github.com/ExpandJS/mat-icon.git",
+  "_target": "*",
+  "_originalSource": "ExpandJS/mat-icon"
+}

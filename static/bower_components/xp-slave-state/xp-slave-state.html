@@ -1,0 +1,143 @@
+<!--
+@license
+Copyright (c) 2015 The ExpandJS authors. All rights reserved.
+This code may only be used under the BSD style license found at https://expandjs.github.io/LICENSE.txt
+The complete set of authors may be found at https://expandjs.github.io/AUTHORS.txt
+The complete set of contributors may be found at https://expandjs.github.io/CONTRIBUTORS.txt
+-->
+
+<!--
+This element is used to add slave capabilities on the context element.
+It extends the native html `template`.
+It should be used in conjunction with xp-master-state.
+
+@element xp-slave-state
+@description A custom element used to add slave capabilities, for a master-slave pattern, to a context element
+@group states
+@homepage http://www.expandjs.com/elements/xp-slave-state
+
+@extends template
+
+@dependency polymer Polymer/polymer#^0.5
+@dependency expandjs ExpandJS/expandjs
+@dependency xp-master-state ExpandJS/xp-master-state
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../expandjs/expandjs.html">
+
+<polymer-element name="xp-slave-state" extends="template" attributes="context master masterSelector masterTag">
+
+    <script>
+        XPElement({
+
+            /**
+             * Fired when the slave is attached.
+             *
+             * @event xp-slave
+             * @param {Element} firer
+             * @param {Function} coupler
+             * @param {string} masterSelector
+             * @param {string} masterTag
+             * @param {boolean} isAttached
+             * @bubbles
+             */
+
+            /*********************************************************************/
+
+            /**
+             * Couples the slave to a master.
+             *
+             * @method couple
+             * @param {Element} master
+             * @returns {Element | undefined}
+             * @private
+             */
+            couple: function (master) {
+                var self = this;
+                if (!self.master) { self.master = master; }
+                if (self.master === master) { return master; }
+            },
+
+            /**
+             * Decouples the slave from its master.
+             *
+             * @method decouple
+             * @param {Element} master
+             * @returns {Element | undefined}
+             * @private
+             */
+            decouple: function (master) {
+                var self = this;
+                if (self.master === master) { self.master = null; }
+                if (!self.master) { return master; }
+            },
+
+            /*********************************************************************/
+
+            // PUBLISH
+            publish: {
+
+                /**
+                 * The context element.
+                 *
+                 * @attribute context
+                 * @type Element
+                 */
+                context: {reflect: false, value: null},
+
+                /**
+                 * The slave's master.
+                 *
+                 * @attribute master
+                 * @type Element
+                 * @readonly
+                 */
+                master: {reflect: false, value: null},
+
+                /**
+                 * A selector used to recognize the master.
+                 *
+                 * @attribute selector
+                 * @type string
+                 * @default ""
+                 */
+                masterSelector: {reflect: true, value: ''},
+
+                /**
+                 * The `tagName` of the master.
+                 *
+                 * @attribute slaveTag
+                 * @type string
+                 * @default ""
+                 */
+                masterTag: {reflect: true, value: ''}
+            },
+
+            /**
+             * The context element.
+             *
+             * @property context
+             * @type Element
+             * @readonly
+             * @private
+             */
+//            get context() { return this.host || this.parentNode; },
+
+            /*********************************************************************/
+
+            // LISTENER
+            attached: function () {
+                var self = this;
+                self.context.asyncFire('xp-slave', {firer: self.context, coupler: self.couple.bind(self), masterSelector: self.masterSelector, masterTag: self.masterTag, isAttached: true});
+            },
+
+            // LISTENER
+            detached: function () {
+                var self = this;
+                self.context.asyncFire('xp-slave', {firer: self.context, coupler: self.decouple.bind(self), masterSelector: self.masterSelector, masterTag: self.masterTag, isAttached: false});
+            }
+        });
+    </script>
+
+</polymer-element>

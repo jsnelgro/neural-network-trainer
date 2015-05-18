@@ -1,0 +1,603 @@
+<!--
+@license
+Copyright (c) 2015 The ExpandJS authors. All rights reserved.
+This code may only be used under the BSD style license found at https://expandjs.github.io/LICENSE.txt
+The complete set of authors may be found at https://expandjs.github.io/AUTHORS.txt
+The complete set of contributors may be found at https://expandjs.github.io/CONTRIBUTORS.txt
+-->
+
+<!--
+This element is used to display a material paper.
+
+@element mat-paper
+@description A custom element used to display a Material Design paper
+@group containers
+@homepage http://www.expandjs.com/elements/mat-paper
+@demo http://www.expandjs.com/demo/mat-paper
+
+@dependency font-roboto Polymer/font-roboto
+@dependency polymer Polymer/polymer#^0.5
+@dependency expandjs ExpandJS/expandjs
+@dependency mat-palette ExpandJS/mat-palette
+@dependency xp-master-state ExpandJS/xp-master-state
+
+@devDependency mat-demo ExpandJS/mat-demo
+-->
+
+<link rel="import" href="../font-roboto/roboto.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../expandjs/expandjs.html">
+<link rel="import" href="../mat-palette/mat-palette.html">
+<link rel="import" href="../xp-master-state/xp-master-state.html">
+
+<style shim-shadowdom>
+
+    /* HTML */
+    html {
+        background: hsla(0, 0%, 93%, 1);
+        color: hsla(0, 0%, 0%, 0.87);
+        font-family: RobotoDraft, Roboto, sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+        line-height: 24px;
+        text-overflow: clip;
+        white-space: normal;
+    }
+
+    /* ANCHOR */
+
+    html /deep/ a {
+        color: inherit;
+    }
+
+    /* CAPTION */
+
+    html /deep/ [font-type="caption"] {
+        font-size: 12px;
+        font-weight: 400;
+        letter-spacing: 0.02em;
+        line-height: 14px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* BODY */
+
+    html /deep/ [font-type="body"] {
+        font-size: 14px;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+        line-height: 20px;
+        text-overflow: clip;
+        white-space: normal;
+    }
+
+    html /deep/ [font-type="body2"] {
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+        line-height: 24px;
+        text-overflow: clip;
+        white-space: normal;
+    }
+
+    /* MENU */
+
+    html /deep/ [font-type="menu"] {
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+        line-height: 20px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* BUTTON */
+
+    html /deep/ [font-type="button"] {
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+        line-height: 20px;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    /* SUBHEAD */
+
+    html /deep/ [font-type="subhead"] {
+        font-size: 16px;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+        line-height: 24px;
+        text-overflow: clip;
+        white-space: normal;
+    }
+
+    html /deep/ [font-type="subhead2"] {
+        font-size: 16px;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+        line-height: 28px;
+        text-overflow: clip;
+        white-space: normal;
+    }
+
+    /* TITLE */
+
+    html /deep/ [font-type="title"] {
+        font-size: 20px;
+        font-weight: 500;
+        letter-spacing: 0.005em;
+        line-height: 24px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* HEADLINE */
+
+    html /deep/ [font-type="headline"] {
+        font-size: 24px;
+        font-weight: 400;
+        letter-spacing: 0;
+        line-height: 32px;
+        text-overflow: clip;
+        white-space: normal;
+    }
+
+    /* DISPLAY */
+
+    html /deep/ [font-type="display"] {
+        font-size: 34px;
+        font-weight: 400;
+        letter-spacing: 0;
+        line-height: 40px;
+        text-overflow: clip;
+        white-space: normal;
+    }
+
+    html /deep/ [font-type="display2"] {
+        font-size: 45px;
+        font-weight: 400;
+        letter-spacing: 0;
+        line-height: 48px;
+        text-overflow: clip;
+        white-space: normal;
+    }
+
+    html /deep/ [font-type="display3"] {
+        font-size: 56px;
+        font-weight: 400;
+        letter-spacing: -0.005em;
+        line-height: 68px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    html /deep/ [font-type="display4"] {
+        font-size: 112px;
+        font-weight: 300;
+        letter-spacing: -0.01em;
+        line-height: 134px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
+<polymer-element name="mat-paper" constructor="MATPaperElement" attributes="background brightness disabled elevation foreground pressable pressed raising theme z">
+
+    <template>
+        <style>
+            :host {
+                border: 0 solid transparent;
+                display: block;
+                overflow: hidden;
+                position: relative;
+
+                /* TRANSITIONS */
+                transition: border .4s cubic-bezier(.55, 0, .01, 1),
+                            box-shadow .4s cubic-bezier(.55, 0, .01, 1),
+                            opacity .4s cubic-bezier(.55, 0, .01, 1),
+                            visibility .4s cubic-bezier(.55, 0, .01, 1),
+                            border-radius .8s cubic-bezier(.55, 0, .01, 1),
+                            height .8s cubic-bezier(.55, 0, .01, 1),
+                            transform .8s cubic-bezier(.55, 0, .01, 1),
+                            width .8s cubic-bezier(.55, 0, .01, 1);
+            }
+
+            /* FOREGROUND */
+
+            :host([foreground="dark"]) {
+                background: hsla(0, 0%, 98%, 1);
+                border-color: hsla(0, 0%, 0%, 0.12);
+                color: hsla(0, 0%, 0%, 0.87);
+            }
+
+            :host([foreground="light"]) {
+                background: hsla(0, 0%, 26%, 1);
+                border-color: hsla(0, 0%, 100%, 0.12);
+                color: hsla(0, 0%, 100%, 1);
+            }
+
+            /* BRIGHTNESS */
+
+            :host([brightness="header"][foreground="dark"]) {
+                background: hsla(0, 0%, 88%, 1);
+            }
+
+            :host([brightness="header"][foreground="light"]) {
+                background: hsla(0, 0%, 13%, 1);
+            }
+
+            :host([brightness="placeholder"][foreground="dark"]) {
+                background: hsla(0, 0%, 88%, 1);
+            }
+
+            :host([brightness="placeholder"][foreground="light"]) {
+                background: hsla(0, 0%, 46%, 1);
+            }
+
+            :host([brightness="shell"][foreground="dark"]) {
+                background: hsla(0, 0%, 93%, 1);
+            }
+
+            :host([brightness="shell"][foreground="light"]) {
+                background: hsla(0, 0%, 19%, 1);
+            }
+
+            :host([brightness="toolbar"][foreground="dark"]) {
+                background: hsla(0, 0%, 96%, 1);
+            }
+
+            :host([brightness="toolbar"][foreground="light"]) {
+                background: hsla(0, 0%, 38%, 1);
+            }
+
+            /* SHADOW */
+
+            :host([z="1"]) {
+                box-shadow: 0 2px 10px 0 hsla(0, 0%, 0%, 0.16), 0 2px 5px 0 hsla(0, 0%, 0%, 0.26);
+            }
+
+            :host([z="2"]) {
+                box-shadow: 0 6px 20px 0 hsla(0, 0%, 0%, 0.19), 0 8px 17px 0 hsla(0, 0%, 0%, 0.2);
+            }
+
+            :host([z="3"]) {
+                box-shadow: 0 17px 50px 0 hsla(0, 0%, 0%, 0.19), 0 12px 15px 0 hsla(0, 0%, 0%, 0.24);
+            }
+
+            :host([z="4"]) {
+                box-shadow: 0 25px 55px 0 hsla(0, 0%, 0%, 0.21), 0 16px 28px 0 hsla(0, 0%, 0%, 0.22);
+            }
+
+            :host([z="5"]) {
+                box-shadow: 0 40px 77px 0 hsla(0, 0%, 0%, 0.22), 0 27px 24px 0 hsla(0, 0%, 0%, 0.2);
+            }
+
+            /* DISABLED */
+            :host([disabled]) {
+                box-shadow: none !important;
+                filter: gray;
+                filter: grayscale(100%);
+                -webkit-filter: grayscale(100%);
+                pointer-events: none !important;
+            }
+
+            :host([disabled][foreground="dark"]) {
+                background: hsla(0, 0%, 0%, 0.12) !important;
+                color: hsla(0, 0%, 0%, 0.26);
+            }
+
+            :host([disabled][foreground="light"]) {
+                background: hsla(0, 0%, 100%, 0.12) !important;
+                color: hsla(0, 0%, 100%, 0.30);
+            }
+        </style>
+        <template context="{{}}" is="xp-master-state" slaveTag="mat-ink"></template>
+        <template context="{{}}" is="xp-master-state" slaveTag="mat-paper"></template>
+        <template context="{{}}" is="xp-slave-state" master="{{layer}}" masterTag="mat-paper"></template>
+        <mat-palette id="matPaperPalette"></mat-palette>
+        <content id="content"></content>
+    </template>
+
+    <script>
+        XPElement({
+
+            /**
+             * Fired when the slave is attached.
+             *
+             * @event xp-slave
+             * @param {Element} firer
+             * @param {Element} slave
+             * @param {string} masterSelector
+             * @param {string} masterTag
+             * @param {boolean} isAttached
+             * @bubbles
+             */
+
+            /*********************************************************************/
+
+            /**
+             * Falls the paper.
+             *
+             * @method fall
+             * @returns {Element}
+             */
+            fall: function () {
+
+                // Vars
+                var self = this;
+
+                // Checking
+                if (self.raising || !self.z) { return self; }
+
+                // Setting
+                self.raising   = false;
+                self.z         = self.pressed ? self.z : self.zPrevious;
+                self.zPrevious = self.pressed ? self.zPrevious : 0;
+
+                return self;
+            },
+
+            /**
+             * Raises the paper.
+             *
+             * @method raise
+             * @returns {Element}
+             */
+            raise: function () {
+
+                // Vars
+                var self = this;
+
+                // Checking
+                if (self.raising || !self.z) { return self; }
+
+                // Setting
+                self.raising   = true;
+                self.zPrevious = self.z;
+                self.z         = Math.min(self.z + self.elevation, self.zMax);
+
+                // Delaying
+                XP.delay(function () { self.raising = false; self.fall(); }, 300);
+
+                return self;
+            },
+
+            /*********************************************************************/
+
+            /**
+             * Returns the right foreground.
+             *
+             * @method getForeground
+             * @param {string} [background = ""]
+             * @param {string} [brightness = ""]
+             * @param {string} [theme = "light"]
+             * @param {boolean} [disabled = false]
+             * @returns {string | undefined}
+             * @private
+             */
+            getForeground: function (background, brightness, theme, disabled) {
+                var palette = (!disabled && background) || (brightness !== "overlay" && theme) || "light";
+                return this.$.matPaperPalette.getForeground(palette, brightness === "placeholder" && !background && !disabled);
+            },
+
+            /**
+             * Refreshes the element.
+             *
+             * @method refresh
+             * @returns {Element}
+             * @private
+             */
+            refresh: function () {
+                var self = this;
+                XP.setStyle(self, 'background', !self.disabled && self.$.matPaperPalette.getColor(self.background));
+                return self;
+            },
+
+            /*********************************************************************/
+
+            // COMPUTED
+            computed: {
+                'foreground': '$.matPaperPalette && getForeground(background, brightness, theme, disabled)'
+            },
+
+            // OBSERVE
+            observe: {
+                'background disabled': 'refresh',
+                'layer.theme': 'themeObserver'
+            },
+
+            // PUBLISH
+            publish: {
+
+                /**
+                 * The paper's background color.
+                 *
+                 * @attribute background
+                 * @type string
+                 * @default ""
+                 */
+                background: {reflect: true, value: ''},
+
+                /**
+                 * The paper's brightness.
+                 *
+                 * @attribute brightness
+                 * @type string
+                 * @default ""
+                 */
+                brightness: {reflect: true, value: ''},
+
+                /**
+                 * If set to true, the element is disabled.
+                 *
+                 * @attribute disabled
+                 * @type boolean
+                 * @default false
+                 */
+                disabled: {reflect: true, value: false},
+
+                /**
+                 * The paper's elevation offset.
+                 *
+                 * @attribute elevation
+                 * @type number
+                 * @default 2
+                 */
+                elevation: {reflect: true, value: 2},
+
+                /**
+                 * The paper's foreground color.
+                 *
+                 * @attribute foreground
+                 * @type "dark" | "light"
+                 * @default ""
+                 * @readonly
+                 */
+                foreground: {reflect: true, value: ''},
+
+                /**
+                 * If set to true, the element is pressable.
+                 *
+                 * @attribute pressable
+                 * @type boolean
+                 * @default false
+                 */
+                pressable: {reflect: true, value: false},
+
+                /**
+                 * If set to true, the element is pressed.
+                 *
+                 * @attribute pressed
+                 * @type boolean
+                 * @default false
+                 * @readonly
+                 */
+                pressed: {reflect: true, value: false},
+
+                /**
+                 * If set to true, the paper is raising from the rest position.
+                 *
+                 * @attribute raising
+                 * @type boolean
+                 * @default false
+                 * @readonly
+                 */
+                raising: {reflect: true, value: false},
+
+                /**
+                 * The paper's theme, used to apply the default foreground color.
+                 *
+                 * @attribute theme
+                 * @type "dark" | "light"
+                 * @default "light"
+                 */
+                theme: {reflect: false, value: 'light'},
+
+                /**
+                 * The paper's z-axis position.
+                 *
+                 * @attribute z
+                 * @type number
+                 * @default 0
+                 */
+                z: {reflect: true, value: 0}
+            },
+
+            /**
+             * The brightness list.
+             *
+             * @property brightnessList
+             * @type Array
+             * @default ["header", "overlay", "placeholder", "shell", "toolbar"]
+             * @readonly
+             */
+            brightnessList: ['header', 'overlay', 'placeholder', 'shell', 'toolbar'],
+
+            /**
+             * The list of instances.
+             *
+             * @property instances
+             * @type Array
+             * @default []
+             * @readonly
+             */
+            instances: [],
+
+            /**
+             * The master paper.
+             *
+             * @property layer
+             * @type Element
+             * @readonly
+             * @private
+             */
+            layer: null,
+
+            /**
+             * The maximum value of z.
+             *
+             * @property zMax
+             * @type number
+             * @default 5
+             * @private
+             */
+            zMax: 5,
+
+            /**
+             * The previous value of z.
+             *
+             * @property zPrevious
+             * @type number
+             * @default 0
+             * @private
+             */
+            zPrevious: 0,
+
+            /*********************************************************************/
+
+            // OBSERVER
+            pressableChanged: function (pre, post) {
+                var self = this;
+                if (post) { XP.listen(self, {down: self.handleDownBound, up: self.handleUpBound}); }
+                if (!post) { XP.unlisten(self, {down: self.handleDownBound, up: self.handleUpBound}); }
+            },
+
+            // OBSERVER
+            themeObserver: function (pre, post) {
+                this.theme = post;
+            },
+
+            /*********************************************************************/
+
+            // LISTENER
+            ready: function () {
+                var self = this;
+                self.handleDownBound = self.handleDown.bind(self);
+                self.handleUpBound   = self.handleUp.bind(self);
+                self.instances.push(self);
+            },
+
+            /*********************************************************************/
+
+            // HANDLER
+            handleDown: function () {
+                var self = this;
+                self.pressed = true;
+                self.raise();
+            },
+
+            // HANDLER
+            handleUp: function () {
+                var self = this;
+                self.pressed = false;
+                self.fall();
+            }
+        });
+    </script>
+
+</polymer-element>

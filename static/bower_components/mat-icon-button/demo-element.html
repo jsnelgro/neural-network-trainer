@@ -1,0 +1,25 @@
+<link rel="import" href="../mat-demo/mat-demo.html">
+<link rel="import" href="mat-icon-button.html">
+
+<polymer-element name="mat-icon-button-demo" noscript>
+
+    <template>
+        <mat-demo label="mat-icon-button">
+
+            <div class="demo-title">Default</div>
+            <mat-icon-button icon="action:favorite" color="red"></mat-icon-button>
+            <mat-icon-button icon="action:alarm"></mat-icon-button>
+            <mat-icon-button icon="av:album"></mat-icon-button>
+
+            <div class="demo-title">Disabled</div>
+            <mat-icon-button disabled icon="action:favorite" color="red"></mat-icon-button>
+            <mat-icon-button disabled icon="action:alarm"></mat-icon-button>
+            <mat-icon-button disabled icon="av:album"></mat-icon-button>
+
+            <div class="demo-title">Toggleable</div>
+            <mat-icon-button icon="action:favorite-outline" activeIcon="action:favorite" color="red" toggleable></mat-icon-button>
+
+        </mat-demo>
+    </template>
+
+</polymer-element>

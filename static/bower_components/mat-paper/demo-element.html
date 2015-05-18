@@ -1,0 +1,29 @@
+<link rel="import" href="../mat-demo/mat-demo.html">
+<link rel="import" href="mat-paper.html">
+
+<polymer-element name="mat-paper-demo" noscript>
+
+    <template>
+        <style>
+            :host .demo-paper {
+                height: 100px;
+                margin: 32px;
+                width: 100px;
+            }
+        </style>
+        <mat-demo label="mat-paper">
+
+            <div class="demo-title">Default</div>
+            <div horizontal layout around-justified>
+                <mat-paper class="demo-paper" font-type="headline" z="0" horizontal layout center-center>Z = 0</mat-paper>
+                <mat-paper class="demo-paper" font-type="headline" z="1" horizontal layout center-center>Z = 1</mat-paper>
+                <mat-paper class="demo-paper" font-type="headline" z="2" horizontal layout center-center>Z = 2</mat-paper>
+                <mat-paper class="demo-paper" font-type="headline" z="3" horizontal layout center-center>Z = 3</mat-paper>
+                <mat-paper class="demo-paper" font-type="headline" z="4" horizontal layout center-center>Z = 4</mat-paper>
+                <mat-paper class="demo-paper" font-type="headline" z="5" horizontal layout center-center>Z = 5</mat-paper>
+            </div>
+
+        </mat-demo>
+    </template>
+
+</polymer-element>

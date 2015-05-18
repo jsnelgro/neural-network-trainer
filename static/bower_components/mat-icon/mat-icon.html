@@ -1,0 +1,135 @@
+<!--
+@license
+Copyright (c) 2015 The ExpandJS authors. All rights reserved.
+This code may only be used under the BSD style license found at https://expandjs.github.io/LICENSE.txt
+The complete set of authors may be found at https://expandjs.github.io/AUTHORS.txt
+The complete set of contributors may be found at https://expandjs.github.io/CONTRIBUTORS.txt
+-->
+
+<!--
+This element is used to display a material icon on a 24px square.
+
+@element mat-icon
+@description A custom element used to display a Material Design icon
+@group contents
+@homepage http://www.expandjs.com/elements/mat-icon
+@demo http://www.expandjs.com/demo/mat-icon
+
+@dependency polymer Polymer/polymer#^0.5
+@dependency expandjs ExpandJS/expandjs
+@dependency mat-ink ExpandJS/mat-ink
+@dependency mat-icons ExpandJS/mat-icons
+@dependency xp-icon ExpandJS/xp-icon
+
+@devDependency mat-demo ExpandJS/mat-demo
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../expandjs/expandjs.html">
+<link rel="import" href="../mat-icons/mat-icons.html">
+<link rel="import" href="../mat-ink/mat-ink.html">
+<link rel="import" href="../xp-icon/xp-icon.html">
+
+<polymer-element name="mat-icon" constructor="MATIconElement" attributes="color disabled empty name opacity raster src">
+
+    <template>
+        <style>
+            :host {
+                display: inline-block;
+                height: 24px;
+                overflow: visible;
+                width: 24px;
+            }
+
+            :host([empty]) {
+                display: none !important;
+            }
+
+            :host #matIconWrapper,
+            :host #matIconAdaptee {
+                border-radius: inherit;
+                display: block;
+                height: 100%;
+                width: 100%;
+            }
+        </style>
+        <mat-ink id="matIconWrapper" color="{{color}}" disabled="{{disabled}}" opacity="{{opacity || (raster ? '' : 'icon')}}">
+            <xp-icon context="{{}}" id="matIconAdaptee" empty="{{empty}}" name="{{name}}" raster="{{raster}}" src="{{src}}"></xp-icon>
+        </mat-ink>
+    </template>
+
+    <script>
+        XPElement({
+
+            // PUBLISH
+            publish: {
+
+                /**
+                 * The ink's color.
+                 *
+                 * @property color
+                 * @type string
+                 * @default ""
+                 */
+                color: {reflect: true, value: ''},
+
+                /**
+                 * If set to true, the element is disabled.
+                 *
+                 * @attribute disabled
+                 * @type boolean
+                 * @default false
+                 */
+                disabled: {reflect: true, value: false},
+
+                /**
+                 * If set to true, the element is hidden.
+                 *
+                 * @attribute empty
+                 * @type boolean
+                 * @default false
+                 * @readonly
+                 */
+                empty: {reflect: true, value: false},
+
+                /**
+                 * The icon's iconset:name.
+                 *
+                 * @attribute name
+                 * @type string
+                 * @default ""
+                 */
+                name: {reflect: true, value: ''},
+
+                /**
+                 * The ink's opacity level.
+                 *
+                 * @attribute opacity
+                 * @type string
+                 * @default ""
+                 */
+                opacity: {reflect: true, value: ''},
+
+                /**
+                 * If set to true, the icon is rendered as `div` background instead of `svg`.
+                 *
+                 * @attribute raster
+                 * @type boolean
+                 * @default false
+                 * @readonly
+                 */
+                raster: {reflect: true, value: false},
+
+                /**
+                 * The icon's src.
+                 *
+                 * @attribute src
+                 * @type string
+                 * @default ""
+                 */
+                src: {reflect: true, value: ''}
+            }
+        });
+    </script>
+
+</polymer-element>

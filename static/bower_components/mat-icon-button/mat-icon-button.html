@@ -1,0 +1,352 @@
+<!--
+@license
+Copyright (c) 2015 The ExpandJS authors. All rights reserved.
+This code may only be used under the BSD style license found at https://expandjs.github.io/LICENSE.txt
+The complete set of authors may be found at https://expandjs.github.io/AUTHORS.txt
+The complete set of contributors may be found at https://expandjs.github.io/CONTRIBUTORS.txt
+-->
+
+<!--
+This element is used to display a material icon button.
+
+@element mat-icon-button
+@description A custom element used to display a Material Design icon button
+@group contents
+@homepage http://www.expandjs.com/elements/mat-icon-button
+@demo http://www.expandjs.com/demo/mat-icon-button
+
+@mixin xp-targeter http://www.expandjs.com/elements/xp-targeter
+
+@dependency polymer Polymer/polymer#^0.5
+@dependency expandjs ExpandJS/expandjs
+@dependency mat-icon ExpandJS/mat-icon
+@dependency mat-ripple ExpandJS/mat-ripple
+@dependency xp-anchor-state ExpandJS/xp-anchor-state
+@dependency xp-disabled-state ExpandJS/xp-disabled-state
+@dependency xp-focused-state ExpandJS/xp-focused-state
+@dependency xp-pressed-state ExpandJS/xp-pressed-state
+@dependency xp-targeter ExpandJS/xp-targeter
+
+@devDependency mat-demo ExpandJS/mat-demo
+@devDependency mat-tooltip ExpandJS/mat-tooltip
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../expandjs/expandjs.html">
+<link rel="import" href="../mat-icon/mat-icon.html">
+<link rel="import" href="../mat-ripple/mat-ripple.html">
+<link rel="import" href="../xp-anchor-state/xp-anchor-state.html">
+<link rel="import" href="../xp-disabled-state/xp-disabled-state.html">
+<link rel="import" href="../xp-focused-state/xp-focused-state.html">
+<link rel="import" href="../xp-pressed-state/xp-pressed-state.html">
+<link rel="import" href="../xp-targeter/xp-targeter.html">
+
+<polymer-element name="mat-icon-button" constructor="MATIconButtonElement" attributes="active activeColor activeIcon activeIconSrc animated color data disabled download empty focused href icon iconSrc pressed raster rel target toggleable">
+
+    <template>
+        <link rel="stylesheet" href="../xp-pressed-state/xp-pressed-state.css">
+        <style>
+            :host {
+                border-radius: 50%;
+                height: 40px;
+                margin: 4px;
+                width: 40px;
+            }
+
+            :host([empty]) {
+                display: none !important;
+            }
+
+            :host #matIconButtonWrapper,
+            :host #matIconButtonMain {
+                border-radius: inherit;
+                height: 100%;
+            }
+
+            :host #matIconButtonAnchor {
+                border-radius: inherit;
+                display: block;
+                height: 100%;
+                overflow: hidden;
+                text-decoration: none;
+            }
+
+            :host #matIconButtonAnchor:after {
+                bottom: -4px;
+                content: "";
+                left: -4px;
+                position: absolute;
+                right: -4px;
+                top: -4px;
+            }
+
+            :host #matIconButtonIcons,
+            :host #matIconButtonIcon,
+            :host #matIconButtonActiveIcon {
+                display: block;
+                position: relative;
+            }
+
+            :host #matIconButtonRipple {
+                margin: -4px;
+                padding: 4px;
+            }
+
+            /* ANIMATION */
+            :host #matIconButtonIcon,
+            :host #matIconButtonActiveIcon {
+                transition: opacity .4s cubic-bezier(.55, 0, .01, 1),
+                            transform .4s cubic-bezier(.55, 0, .01, 1),
+                            visibility .4s cubic-bezier(.55, 0, .01, 1);
+            }
+
+            :host([animated]) #matIconButtonIcon {
+                position: absolute;
+            }
+
+            :host #matIconButtonIcon,
+            :host([active]) #matIconButtonActiveIcon {
+                transform: scale(1);
+                visibility: visible;
+            }
+
+            :host([active][animated]) #matIconButtonIcon,
+            :host(:not([active])) #matIconButtonActiveIcon {
+                opacity: 0;
+                transform: scale(0);
+                visibility: hidden;
+            }
+        </style>
+        <template context="{{}}" is="xp-anchor-state" id="xpAnchorState" anchor="{{$.matIconButtonAnchor}}" download="{{download}}" href="{{href}}" rel="{{rel}}" target="{{target}}"></template>
+        <template context="{{}}" is="xp-disabled-state" id="xpDisabledState" disabled="{{disabled}}"></template>
+        <template context="{{}}" is="xp-focused-state" id="xpFocusedState" disabled="{{disabled}}" focused="{{focused}}"></template>
+        <template context="{{}}" is="xp-pressed-state" id="xpPressedState" active="{{active}}" disabled="{{disabled}}" pressed="{{pressed}}" target="{{target}}" toggleable="{{toggleable}}"></template>
+        <div id="matIconButtonWrapper">
+            <a id="matIconButtonAnchor">
+                <div id="matIconButtonMain" horizontal layout center-center>
+                    <div id="matIconButtonIcons">
+                        <mat-icon id="matIconButtonIcon" color="{{(active && !animated && activeColor) || color}}" disabled="{{disabled}}" name="{{icon}}" src="{{iconSrc}}"></mat-icon>
+                        <mat-icon id="matIconButtonActiveIcon" color="{{activeColor || color}}" disabled="{{disabled}}" name="{{activeIcon}}" src="{{activeIconSrc}}"></mat-icon>
+                    </div>
+                </div>
+            </a>
+            <mat-ripple context="{{}}" id="matIconButtonRipple" autoCenter="{{true}}" style="pointer-events: none"></mat-ripple>
+        </div>
+    </template>
+
+    <script>
+        XPElement({
+
+            // MIXINS
+            mixins: ['xp-targeter'],
+
+            /*********************************************************************/
+
+            /**
+             * Fired when the active state changes.
+             *
+             * @event xp-active
+             * @param {Element} firer
+             * @param {boolean} isActive
+             * @bubbles
+             */
+
+            /**
+             * Fired when the context element is clicked.
+             *
+             * @event xp-activate
+             * @param {Element} firer
+             * @param {Element} target
+             * @param {boolean} isActive
+             * @bubbles
+             * @cancelable
+             */
+
+            /*********************************************************************/
+
+            // COMPUTED
+            computed: {
+                'animated': '!!activeIcon || !!activeIconSrc',
+                'empty': '!icon && !iconSrc && (!animated || !active)',
+                'raster': 'animated && active ? $.matIconButtonActiveIcon.raster : $.matIconButtonIcon.raster'
+            },
+
+            // PUBLISH
+            publish: {
+
+                /**
+                 * If set to true, the element is active.
+                 *
+                 * @attribute active
+                 * @type boolean
+                 * @default false
+                 */
+                active: {reflect: true, value: false},
+
+                /**
+                 * The ink's active color.
+                 *
+                 * @attribute activeColor
+                 * @type string
+                 * @default ""
+                 */
+                activeColor: {reflect: true, value: ''},
+
+                /**
+                 * The button's active icon.
+                 *
+                 * @attribute activeIcon
+                 * @type string
+                 * @default ""
+                 */
+                activeIcon: {reflect: true, value: ''},
+
+                /**
+                 * The button's active icon's src.
+                 *
+                 * @attribute activeIconSrc
+                 * @type string
+                 * @default ""
+                 */
+                activeIconSrc: {reflect: true, value: ''},
+
+                /**
+                 * If set to true, both icon and active icon are set.
+                 *
+                 * @attribute activeIcon
+                 * @type string
+                 * @default ""
+                 * @readonly
+                 */
+                animated: {reflect: true, value: false},
+
+                /**
+                 * The ink's color.
+                 *
+                 * @attribute color
+                 * @type string
+                 * @default ""
+                 */
+                color: {reflect: true, value: ''},
+
+                /**
+                 * The element's data.
+                 *
+                 * @attribute data
+                 * @type *
+                 */
+                data: {reflect: false, value: null},
+
+                /**
+                 * If set to true, the element is disabled.
+                 *
+                 * @attribute disabled
+                 * @type boolean
+                 * @default false
+                 */
+                disabled: {reflect: true, value: false},
+
+                /**
+                 * The anchor's download property's value.
+                 *
+                 * @attribute download
+                 * @type string
+                 * @default ""
+                 */
+                download: {reflect: true, value: ''},
+
+                /**
+                 * If set to true, the element is hidden.
+                 *
+                 * @attribute empty
+                 * @type boolean
+                 * @default false
+                 * @readonly
+                 */
+                empty: {reflect: true, value: false},
+
+                /**
+                 * If set to true, the element is focused.
+                 *
+                 * @attribute focused
+                 * @type boolean
+                 * @default false
+                 */
+                focused: {reflect: true, value: false},
+
+                /**
+                 * The anchor's href property's value.
+                 *
+                 * @attribute href
+                 * @type string
+                 * @default ""
+                 */
+                href: {reflect: true, value: ''},
+
+                /**
+                 * The button's icon.
+                 *
+                 * @attribute icon
+                 * @type string
+                 * @default ""
+                 */
+                icon: {reflect: true, value: ''},
+
+                /**
+                 * The button's icon's src.
+                 *
+                 * @attribute iconSrc
+                 * @type string
+                 * @default ""
+                 */
+                iconSrc: {reflect: true, value: ''},
+
+                /**
+                 * If set to true, the element is pressed.
+                 *
+                 * @attribute pressed
+                 * @type boolean
+                 * @default false
+                 * @readonly
+                 */
+                pressed: {reflect: true, value: false},
+
+                /**
+                 * If set to true, the icon is a raster one instead of svg.
+                 *
+                 * @attribute raster
+                 * @type boolean
+                 * @default false
+                 */
+                raster: {reflect: true, value: false},
+
+                /**
+                 * The anchor's rel property's value.
+                 *
+                 * @attribute rel
+                 * @type string
+                 * @default ""
+                 */
+                rel: {reflect: true, value: ''},
+
+                /**
+                 * The `id` of the targeted element or the element itself.
+                 *
+                 * @attribute target
+                 * @type Element | string
+                 */
+                target: {reflect: false, value: null},
+
+                /**
+                 * If set to true, pressing will toggle active state on the context element.
+                 *
+                 * @attribute toggleable
+                 * @type boolean
+                 * @default false
+                 */
+                toggleable: {reflect: true, value: false}
+            }
+        });
+    </script>
+
+</polymer-element>

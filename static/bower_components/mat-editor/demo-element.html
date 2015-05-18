@@ -1,0 +1,45 @@
+<link rel="import" href="../mat-demo/mat-demo.html">
+<link rel="import" href="mat-editor.html">
+
+<polymer-element name="mat-editor-demo">
+
+    <template>
+        <style>
+            :host mat-editor {
+                margin: 0 32px;
+            }
+        </style>
+        <mat-demo label="mat-editor">
+
+            <div class="demo-title">Default</div>
+            <mat-editor label="HTML Editor" height="300" model="{{codeHTML}}" expandable lineNumbers></mat-editor>
+
+            <div class="demo-title">Javascript</div>
+            <mat-editor label="JS Editor" mode="javascript" height="300" model="{{codeJS}}" expandable lineNumbers></mat-editor>
+
+        </mat-demo>
+    </template>
+
+    <script>
+        XPElement({
+
+            // LISTENER
+            ready: function () {
+                var self = this;
+                self.codeHTML  = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n';
+                self.codeHTML += 'Vivamus dignissim vestibulum purus vel pulvinar.\n';
+                self.codeHTML += 'Donec cursus malesuada sem eget placerat. Maecenas et lobortis ex.\n';
+                self.codeHTML += 'Proin tincidunt, nunc at euismod condimentum, justo est ultrices arcu, non interdum mi sem eget velit.\n';
+                self.codeHTML += 'Morbi laoreet, nibh at luctus ornare, enim risus tincidunt sapien, ac hendrerit purus ipsum sed justo.\n';
+                self.codeHTML += 'Etiam sagittis dolor neque, vitae congue purus ornare eget.\n';
+                self.codeHTML += 'Aenean non enim ex. Sed porta dignissim efficitur.\n';
+                self.codeHTML += 'Nullam sagittis justo turpis, dapibus volutpat nulla luctus non.\n';
+                self.codeHTML += 'Suspendisse nec sagittis mauris.\n';
+                self.codeHTML += 'Suspendisse ut velit quis elit dapibus viverra.\n';
+                self.codeHTML += 'Duis eget orci eros. Vivamus scelerisque blandit magna at auctor.';
+                self.codeJS    = '(function () {\n    console.log("Hello world!");\n}());';
+            }
+        });
+    </script>
+
+</polymer-element>

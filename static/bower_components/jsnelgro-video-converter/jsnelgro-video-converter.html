@@ -1,0 +1,83 @@
+<polymer-element name="jsnelgro-video-converter" attributes="imgData sampleRate paused">
+<template>
+	<style>
+		:host {
+			display: block;
+		}
+		#canvasOut {
+			display:none;
+		}
+		#videoIn {
+			height: 100%;
+			/*min-height: 100px;*/
+			width: 50vw;
+			background: #303030;
+			/*overflow: hidden;*/
+		}
+	</style>
+		<canvas id="canvasOut">
+			your browser doesn't seem to support the HTML5 <code>&lt;canvas&gt;</code>element.
+		</canvas>
+	<div horizontal layout>
+	<video id="videoIn" autoplay="true" flex center-justified>
+		Your browser doesn't appear to support the HTML5 <code>&lt;video&gt;</code> element.
+	</video>
+	</div>
+</template>
+<script>
+Polymer("jsnelgro-video-converter", {
+	ready: function() {
+		var self = this;
+		self.paused = false;
+		self.sampleRate = 20;
+		self.canPlay = false;
+		this.vidout = this.$.videoIn;
+		this.canvas = this.$.canvasOut;
+		this.canvas.width = 32;
+		this.canvas.height = 32;
+		this.context = this.canvas.getContext('2d');
+		this.cw = Math.floor(this.canvas.width);
+		this.ch = Math.floor(this.canvas.height);
+		self.imgData = [];
+		this.checkVideoSupport(this);
+	},
+	checkVideoSupport: function(self) {
+		var _this = self;
+		//use the correct getUserMedia for the clients browser
+		navigator.getUserMedia = (navigator.getUserMedia ||
+			navigator.webkitGetUserMedia ||
+			navigator.mozGetUserMedia ||
+			navigator.msGetUserMedia);
+		//if the client browser supports getUserMedia, get the camera feeds URL blob
+		if (navigator.getUserMedia) {
+			navigator.getUserMedia({video: true, audio: false},
+				function(localMediaStream) {
+					self.canPlay = true;
+					_this.vidout.src = window.URL.createObjectURL(localMediaStream);
+					_this.vidout.addEventListener('play', function() {
+						_this.draw(self, this, _this.context, _this.cw, _this.ch);
+					}, false);
+				},
+				function(err) {
+					self.canPlay = false;
+					console.log('The following error occured: ' + err);
+				}
+			);
+		} 
+		else {
+			console.log('getUserMedia not supported');
+		}
+	},
+	draw: function(self, v, c, w, h) {
+		if (self.paused) {
+			v.pause();
+			return false;
+		}
+		c.drawImage(v, 0, 0, w, h);
+		self.imgData = self.canvas.toDataURL();
+		self.fire('video-updated', {b64: self.imgData});
+		setTimeout(self.draw, self.sampleRate, self, v, c, w, h);
+	}
+});
+</script>
+</polymer-element>

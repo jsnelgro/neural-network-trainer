@@ -1,0 +1,143 @@
+<!--
+@license
+Copyright (c) 2015 The ExpandJS authors. All rights reserved.
+This code may only be used under the BSD style license found at https://expandjs.github.io/LICENSE.txt
+The complete set of authors may be found at https://expandjs.github.io/AUTHORS.txt
+The complete set of contributors may be found at https://expandjs.github.io/CONTRIBUTORS.txt
+-->
+
+<!--
+This element is used to define a set of icons.
+It can be used in conjunction with xp-icon.
+
+@element xp-iconset
+@description A custom element used to define a set of svg icons
+@group functionality
+@homepage http://www.expandjs.com/elements/xp-iconset
+
+@dependency polymer Polymer/polymer#^0.5
+@dependency expandjs ExpandJS/expandjs
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../expandjs/expandjs.html">
+
+<polymer-element name="xp-iconset" constructor="XPIconsetElement" attributes="instance name refers">
+
+    <template>
+        <style>
+            :host {
+                display: none !important;
+            }
+        </style>
+        <content id="content"></content>
+    </template>
+
+    <script>
+        XPElement({
+
+            /**
+             * Returns a copy of an iconset's icon.
+             *
+             * @method findIcon
+             * @param {string} [name = ""]
+             * @returns {Node}
+             */
+            findIcon: function (name) {
+
+                // Asserting
+                XP.assertArgument(XP.isVoid(name) || XP.isString(name), 1, 'string');
+
+                // Vars
+                var self    = this,
+                    wrapper = name ? XP.getDistributedElement((self.instance || self).$.content, 'svg') : null,
+                    icon    = wrapper ? XP.getElement(wrapper, 'g[id="' + name + '"]') : null,
+                    clone   = icon ? icon.cloneNode(true) : null;
+
+                // Clean up
+                if (clone) { clone.removeAttribute('id'); }
+
+                return clone;
+            },
+
+            /**
+             * Returns an iconset instance.
+             *
+             * @method findInstance
+             * @param {string} [name = ""]
+             * @returns {Element}
+             */
+            findInstance: function (name) {
+                XP.assertArgument(XP.isVoid(name) || XP.isString(name), 1, 'string');
+                return (name && XP.find(this.instances, function (instance) { return name === instance.name; })) || null;
+            },
+
+            /*********************************************************************/
+
+            // COMPUTED
+            observe: {
+                'instance': '(!name && findInstance(refers)) || null'
+            },
+
+            // PUBLISH
+            publish: {
+
+                /**
+                 * The instance's name.
+                 *
+                 * @attribute name
+                 * @type string
+                 * @default ""
+                 */
+                name: {reflect: true, value: ''},
+
+                /**
+                 * The referred instance's name.
+                 *
+                 * @attribute refers
+                 * @type string
+                 * @default ""
+                 */
+                refers: {reflect: true, value: ''}
+            },
+
+            /**
+             * The list of icons names in the iconset.
+             *
+             * @property icons
+             * @type Array
+             * @readonly
+             */
+            get icons() {
+                var wrapper = XP.getDistributedElement((this.instance || this).$.content, 'svg');
+                return XP.map(XP.getElements(wrapper, 'g[id]'), 'id');
+            },
+
+            /**
+             * The referred instance.
+             *
+             * @property instance
+             * @type Element
+             */
+            instance: null,
+
+            /**
+             * The list of instances.
+             *
+             * @property instances
+             * @type Array
+             * @default []
+             * @readonly
+             */
+            instances: [],
+
+            /*********************************************************************/
+
+            // OBSERVER
+            nameChanged: function (pre, post) {
+                XP[post ? 'append' : 'pull'](this.instances, this);
+            }
+        });
+    </script>
+
+</polymer-element>

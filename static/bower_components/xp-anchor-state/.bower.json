@@ -1,0 +1,38 @@
+{
+  "name": "xp-anchor-state",
+  "license": "BSD-3-Clause",
+  "description": "A custom element used to add anchorable capabilities to a context element",
+  "homepage": "http://www.expandjs.com/elements/xp-anchor-state",
+  "authors": [
+    "Giuliano Rullo <g.rullo@expandjs.com>",
+    "Maurizio Stefàno <m.stefano@expandjs.com>",
+    "Robert Manolea <r.manolea@expandjs.com>"
+  ],
+  "keywords": [
+    "web-components"
+  ],
+  "main": [
+    "xp-anchor-state.html"
+  ],
+  "ignore": [
+    "**/.*",
+    "bin",
+    "index.js",
+    "lib",
+    "node_modules",
+    "package.json"
+  ],
+  "dependencies": {
+    "expandjs": "ExpandJS/expandjs",
+    "polymer": "Polymer/polymer#^0.5"
+  },
+  "_release": "9076f9babc",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "9076f9babc2f16b99332562be37afc026d074ea4"
+  },
+  "_source": "git://github.com/ExpandJS/xp-anchor-state.git",
+  "_target": "*",
+  "_originalSource": "ExpandJS/xp-anchor-state"
+}

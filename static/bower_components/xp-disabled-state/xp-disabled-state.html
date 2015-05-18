@@ -1,0 +1,72 @@
+<!--
+@license
+Copyright (c) 2015 The ExpandJS authors. All rights reserved.
+This code may only be used under the BSD style license found at https://expandjs.github.io/LICENSE.txt
+The complete set of authors may be found at https://expandjs.github.io/AUTHORS.txt
+The complete set of contributors may be found at https://expandjs.github.io/CONTRIBUTORS.txt
+-->
+
+<!--
+This element is used to add disable capabilities on the context element.
+It extends the native html `template`.
+
+@element xp-disabled-state
+@description A custom element used to add disabling capabilities to a context element
+@group states
+@homepage http://www.expandjs.com/elements/xp-disabled-state
+
+@extends template
+
+@dependency polymer Polymer/polymer#^0.5
+@dependency expandjs ExpandJS/expandjs
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../expandjs/expandjs.html">
+
+<polymer-element name="xp-disabled-state" extends="template" attributes="context disabled">
+
+    <script>
+        XPElement({
+
+            // PUBLISH
+            publish: {
+
+                /**
+                 * The context element.
+                 *
+                 * @attribute context
+                 * @type Element
+                 */
+                context: {reflect: false, value: null},
+
+                /**
+                 * If set to true, the element is disabled.
+                 *
+                 * @attribute disabled
+                 * @type boolean
+                 * @default false
+                 */
+                disabled: {reflect: true, value: false}
+            },
+
+            /**
+             * The context element.
+             *
+             * @property context
+             * @type Element
+             * @readonly
+             * @private
+             */
+//            get context() { return this.host || this.parentNode; },
+
+            /*********************************************************************/
+
+            // OBSERVER
+            disabledChanged: function (pre, post) {
+                XP.setStyle(this.context, 'pointer-events', post ? 'none' : null);
+            }
+        });
+    </script>
+
+</polymer-element>

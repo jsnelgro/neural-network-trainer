@@ -1,0 +1,36 @@
+{
+  "name": "mat-paper",
+  "license": "BSD-3-Clause",
+  "version": "0.8.9",
+  "description": "A custom element used to display a Material Design paper",
+  "homepage": "http://www.expandjs.com/elements/mat-paper",
+  "authors": [
+    "Giuliano Rullo <g.rullo@expandjs.com>",
+    "Maurizio Stefàno <m.stefano@expandjs.com>",
+    "Robert Manolea <r.manolea@expandjs.com>"
+  ],
+  "keywords": [
+    "web-components"
+  ],
+  "main": [
+    "mat-paper.html"
+  ],
+  "ignore": [
+    "**/.*",
+    "bin",
+    "index.js",
+    "lib",
+    "node_modules",
+    "package.json"
+  ],
+  "dependencies": {
+    "expandjs": "ExpandJS/expandjs",
+    "mat-palette": "ExpandJS/mat-palette",
+    "xp-master-state": "ExpandJS/xp-master-state",
+    "font-roboto": "Polymer/font-roboto",
+    "polymer": "Polymer/polymer#^0.5"
+  },
+  "devDependencies": {
+    "mat-demo": "ExpandJS/mat-demo"
+  }
+}

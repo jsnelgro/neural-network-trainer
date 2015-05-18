@@ -1,0 +1,51 @@
+<polymer-element name="jsnelgro-socketIO" attributes="socket options namespace training connected">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+		</style>
+	</template>
+
+<script>
+Polymer('jsnelgro-socketIO', {
+	ready: function() {
+		var self = this;
+		self.namespace = '/test';
+		self.connected = false;
+		self.training = false;
+		self.threadId = '';
+		// TODO: actually, use location.port instead of hardcoding 5000
+		self.socket = io.connect('http://' + document.domain + ':' + location.port + self.namespace);
+		self.socket.on('connect', function() {
+			self.handleSocketConnect(self);
+		});
+		self.socket.on('training started', function(threadId){self.handleTrainingStarted(self, threadId);});
+		self.socket.on('training complete', function(){self.handleTrainingComplete(self);});
+		self.socket.on('test result', function(res){self.handleTestResults(self,res);});
+		setInterval(function(){
+			if(self.training){
+				// hacky... check every second to see if training is finished
+				self.socket.emit('getTrainingStatus', self.threadId);
+			}
+		}, 1000);
+	},
+	handleSocketConnect:function(self) {
+		self.connected = true;
+	},
+	handleTrainingStarted: function(self, threadId) {
+		self.threadId = threadId;
+		self.training = true;
+		self.fire('training-started',{training:true});
+	},
+	handleTrainingComplete: function(self) {
+		self.training = false;
+		self.fire('training-ended',{training:false});
+	},
+	handleTestResults: function(self, res) {
+		var maxOutput = res.indexOf(Math.max.apply(Math, res));
+		self.fire('test-results',{dominantIndex:maxOutput, response:res});
+	}
+});
+</script>
+</polymer-element>

@@ -1,0 +1,133 @@
+<!--
+@license
+Copyright (c) 2015 The ExpandJS authors. All rights reserved.
+This code may only be used under the BSD style license found at https://expandjs.github.io/LICENSE.txt
+The complete set of authors may be found at https://expandjs.github.io/AUTHORS.txt
+The complete set of contributors may be found at https://expandjs.github.io/CONTRIBUTORS.txt
+-->
+
+<!--
+This element is used to add focus capabilities on the context element.
+It extends the native html `template`.
+
+@element xp-focused-state
+@description A custom element used to add focusable capabilities to a context element
+@group states
+@homepage http://www.expandjs.com/elements/xp-focused-state
+
+@extends template
+
+@dependency polymer Polymer/polymer#^0.5
+@dependency expandjs ExpandJS/expandjs
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../expandjs/expandjs.html">
+
+<polymer-element name="xp-focused-state" extends="template" attributes="context disabled focused">
+
+    <script>
+        XPElement({
+
+            // PUBLISH
+            publish: {
+
+                /**
+                 * The context element.
+                 *
+                 * @attribute context
+                 * @type Element
+                 */
+                context: {reflect: false, value: null},
+
+                /**
+                 * If set to true, the element is disabled.
+                 *
+                 * @attribute disabled
+                 * @type boolean
+                 * @default false
+                 */
+                disabled: {reflect: true, value: false},
+
+                /**
+                 * If set to true, the element is focused.
+                 *
+                 * @attribute focused
+                 * @type boolean
+                 * @default false
+                 */
+                focused: {reflect: true, value: false}
+            },
+
+            /**
+             * The context element.
+             *
+             * @property context
+             * @type Element
+             * @readonly
+             * @private
+             */
+//            get context() { return this.host || this.parentNode; },
+
+            /**
+             * The last value of tabIndex.
+             *
+             * @property lastTabIndex
+             * @type number
+             * @default 0
+             * @private
+             */
+            lastTabIndex: 0,
+
+            /*********************************************************************/
+
+            // OBSERVER
+            contextChanged: function (pre, post) {
+                var self = this;
+                if (arguments.length < 2) { return; }
+                if (self.contextObserver) { self.contextObserver.disconnect(); }
+                if (pre) { XP.unlisten(pre, {blur: self.handleBlurBound, focus: self.handleFocusBound}); }
+                if (post) { XP.listen(post, {blur: self.handleBlurBound, focus: self.handleFocusBound}); }
+                self.mutated();
+            },
+
+            // OBSERVER
+            disabledChanged: function (pre, post) {
+                var self = this;
+                if (!self.context) { return; }
+                self.context.tabIndex = post ? -1 : self.lastTabIndex;
+                self.focused          = self.focused && !post;
+            },
+
+            /*********************************************************************/
+
+            // LISTENER
+            mutated: function () {
+                var self = this;
+                self.lastTabIndex     = self.context.tabIndex >= 0 ? self.context.tabIndex : self.lastTabIndex;
+                self.context.tabIndex = self.disabled ? -1 : Math.max(self.context.tabIndex, 0);
+                self.contextObserver  = XP.onMutation(self.context, self.mutated.bind(self), {attributes: true, attributeFilter: ['tabindex']});
+            },
+
+            // LISTENER
+            ready: function () {
+                var self = this;
+                self.handleBlurBound  = self.handleBlur.bind(self);
+                self.handleFocusBound = self.handleFocus.bind(self);
+            },
+
+            /*********************************************************************/
+
+            // HANDLER
+            handleBlur: function () {
+                this.focused = false;
+            },
+
+            // HANDLER
+            handleFocus: function () {
+                this.focused = !this.disabled;
+            }
+        });
+    </script>
+
+</polymer-element>

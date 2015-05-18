@@ -1,0 +1,36 @@
+<polymer-element name="jsnelgro-output-box" attributes="height width">
+	<template>
+		<style>
+			:host {
+				display: block;
+				background: {{background}};
+				color: #FFFFFF;
+				overflow-y: scroll;
+			}
+			#logsList {
+				list-style: none;
+			}
+		</style>
+		<ul id="logsList">
+		<template repeat="{{log in logs}}">
+			<li>{{log}}</li>
+		</template>
+		</ul>
+	</template>
+	<script>
+		Polymer('jsnelgro-output-box', {
+			created: function() {
+				var self = this;
+				self.background = '#212121';
+				this.logs = [];
+			},
+			log: function() {
+				var args = [].slice.apply(arguments);
+				this.logs.push(args.join(' '));
+			},
+			clear: function() {
+				this.logs = [];
+			}
+		});
+	</script>
+</polymer-element>

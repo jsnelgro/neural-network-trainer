@@ -1,0 +1,37 @@
+{
+  "name": "mat-icons",
+  "license": "BSD-3-Clause",
+  "description": "A collection of all Material Design icons",
+  "homepage": "http://www.expandjs.com/elements/mat-icons",
+  "authors": [
+    "Giuliano Rullo <g.rullo@expandjs.com>",
+    "Maurizio Stefàno <m.stefano@expandjs.com>",
+    "Robert Manolea <r.manolea@expandjs.com>"
+  ],
+  "keywords": [
+    "web-components"
+  ],
+  "main": [
+    "mat-icons.html"
+  ],
+  "ignore": [
+    "**/.*",
+    "bin",
+    "index.js",
+    "lib",
+    "node_modules",
+    "package.json"
+  ],
+  "dependencies": {
+    "xp-iconset": "ExpandJS/xp-iconset"
+  },
+  "_release": "caab06ebe3",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "caab06ebe3738da220faa32eea8e3db94375d0ba"
+  },
+  "_source": "git://github.com/ExpandJS/mat-icons.git",
+  "_target": "*",
+  "_originalSource": "ExpandJS/mat-icons"
+}

@@ -1,0 +1,101 @@
+<!--
+@license
+Copyright (c) 2015 The ExpandJS authors. All rights reserved.
+This code may only be used under the BSD style license found at https://expandjs.github.io/LICENSE.txt
+The complete set of authors may be found at https://expandjs.github.io/AUTHORS.txt
+The complete set of contributors may be found at https://expandjs.github.io/CONTRIBUTORS.txt
+-->
+
+<!--
+This element is used to add shadow traverse capabilities on an HTML label.
+
+@element xp-label
+@description A custom element used add shadow traverse capabilities on an HTML label
+@group accessibility
+@homepage http://www.expandjs.com/elements/xp-label
+
+@extends label
+
+@dependency polymer Polymer/polymer#^0.5
+@dependency expandjs ExpandJS/expandjs
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../expandjs/expandjs.html">
+
+<polymer-element name="xp-label" extends="label" attributes="context focused">
+
+    <template>
+        <style>
+            :host {
+                display: block;
+                overflow: visible;
+            }
+        </style>
+        <content id="content"></content>
+    </template>
+
+    <script>
+        XPElement({
+
+            /**
+             * Finds the input.
+             *
+             * @method findInput
+             * @returns {Element | undefined}
+             * @private
+             */
+            findInput: function () {
+                var self = this, input = self.htmlFor && XP.getElement('html /deep/ #' + self.htmlFor);
+                return input || XP.mapOne(self.selectors, function (selector) { return XP.getElement(self, selector); });
+            },
+
+            /*********************************************************************/
+
+            // DELEGATES
+            eventDelegates: {
+                'click': 'handleClick'
+            },
+
+            // PUBLISH
+            publish: {
+
+                /**
+                 * The context element.
+                 *
+                 * @attribute context
+                 * @type Element
+                 */
+                context: {reflect: false, value: null},
+
+                /**
+                 * If set to true, the element is focused.
+                 *
+                 * @attribute focused
+                 * @type boolean
+                 * @default false
+                 */
+                focused: {reflect: true, value: false}
+            },
+
+            /**
+             * The list of available inputs the label can work with
+             *
+             * @property selectors
+             * @type Array
+             * @default ["button", "input", "reset", "select", "submit", "textarea"]
+             * @readonly
+             */
+            selectors: ['button', 'input', 'reset', 'select', 'submit', 'textarea'],
+
+            /*********************************************************************/
+
+            // HANDLER
+            handleClick: function () {
+                var self = this, input = self.findInput();
+                if (input) { input.focus(); input.click(); }
+            }
+        });
+    </script>
+
+</polymer-element>

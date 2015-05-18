@@ -1,0 +1,226 @@
+<!--
+@license
+Copyright (c) 2015 The ExpandJS authors. All rights reserved.
+This code may only be used under the BSD style license found at https://expandjs.github.io/LICENSE.txt
+The complete set of authors may be found at https://expandjs.github.io/AUTHORS.txt
+The complete set of contributors may be found at https://expandjs.github.io/CONTRIBUTORS.txt
+-->
+
+<!--
+This element is used to decorate contents as material ink.
+
+@element mat-ink
+@description A custom element used to decorate content as Material Design ink
+@group decorators
+@homepage http://www.expandjs.com/elements/mat-ink
+
+@dependency polymer Polymer/polymer#^0.5
+@dependency expandjs ExpandJS/expandjs
+@dependency mat-palette ExpandJS/mat-palette
+@dependency xp-slave-state ExpandJS/xp-slave-state
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../expandjs/expandjs.html">
+<link rel="import" href="../mat-palette/mat-palette.html">
+<link rel="import" href="../xp-slave-state/xp-slave-state.html">
+
+<polymer-element name="mat-ink" constructor="MATInkElement" attributes="color disabled foreground layer opacity">
+
+    <template>
+        <style>
+            :host {
+                display: block;
+                overflow: visible;
+            }
+
+            /* FOREGROUND */
+
+            :host([foreground="dark"]) {
+                color: hsla(0, 0%, 0%, 0.87);
+            }
+
+            :host([foreground="light"]) {
+                color: hsla(0, 0%, 100%, 1);
+            }
+
+            /* OPACITY */
+
+            :host([opacity="divider"][foreground="dark"]) {
+                color: hsla(0, 0%, 0%, 0.12);
+            }
+
+            :host([opacity="divider"][foreground="light"]) {
+                color: hsla(0, 0%, 100%, 0.12);
+            }
+
+            :host([opacity="hint"][foreground="dark"]) {
+                color: hsla(0, 0%, 0%, 0.26);
+            }
+
+            :host([opacity="hint"][foreground="light"]) {
+                color: hsla(0, 0%, 100%, 0.30);
+            }
+
+            :host([opacity="icon"][foreground="dark"]) {
+                color: hsla(0, 0%, 0%, 0.54);
+            }
+
+            :host([opacity="icon"][foreground="light"]) {
+                color: hsla(0, 0%, 100%, 1);
+            }
+
+            :host([opacity="ripple"][foreground="dark"]) {
+                color: hsla(0, 0%, 0%, 0.24);
+            }
+
+            :host([opacity="ripple"][foreground="light"]) {
+                color: hsla(0, 0%, 100%, 0.24);
+            }
+
+            :host([opacity="secondary"][foreground="dark"]) {
+                color: hsla(0, 0%, 0%, 0.54);
+            }
+
+            :host([opacity="secondary"][foreground="light"]) {
+                color: hsla(0, 0%, 100%, 0.70);
+            }
+
+            /* DISABLED */
+            :host([disabled]) {
+                filter: gray;
+                filter: grayscale(100%);
+                -webkit-filter: grayscale(100%);
+                pointer-events: none !important;
+                text-shadow: none !important;
+            }
+
+            :host([disabled][foreground="dark"]) {
+                color: hsla(0, 0%, 0%, 0.26) !important;
+            }
+
+            :host([disabled][foreground="light"]) {
+                color: hsla(0, 0%, 100%, 0.30) !important;
+            }
+        </style>
+        <template context="{{}}" is="xp-slave-state" master="{{layer}}" masterTag="mat-paper"></template>
+        <mat-palette id="matInkPalette"></mat-palette>
+        <content id="content"></content>
+    </template>
+
+    <script>
+        XPElement({
+
+            /**
+             * Fired when the slave is attached.
+             *
+             * @event xp-slave
+             * @param {Element} firer
+             * @param {Element} slave
+             * @param {string} masterSelector
+             * @param {string} masterTag
+             * @param {boolean} isAttached
+             * @bubbles
+             */
+
+            /*********************************************************************/
+
+            /**
+             * Returns the default foreground.
+             *
+             * @method getForeground
+             * @returns {string}
+             * @private
+             */
+            getForeground: function () {
+                return this.$.matInkPalette.getForeground();
+            },
+
+            /**
+             * Refreshes the element.
+             *
+             * @method refresh
+             * @returns {Element}
+             * @private
+             */
+            refresh: function () {
+                var self = this;
+                XP.setStyle(self, 'color', !self.disabled && self.$.matInkPalette.getColor(self.color));
+                return self;
+            },
+
+            /*********************************************************************/
+
+            // COMPUTED
+            computed: {
+                'foreground': 'layer.foreground || ($.matInkPalette && getForeground())'
+            },
+
+            // OBSERVE
+            observe: {
+                'color disabled': 'refresh'
+            },
+
+            // PUBLISH
+            publish: {
+
+                /**
+                 * The ink's color.
+                 *
+                 * @attribute color
+                 * @type string
+                 * @default ""
+                 */
+                color: {reflect: true, value: ''},
+
+                /**
+                 * If set to true, the element is disabled.
+                 *
+                 * @attribute disabled
+                 * @type boolean
+                 * @default false
+                 */
+                disabled: {reflect: true, value: false},
+
+                /**
+                 * The ink's foreground color.
+                 *
+                 * @attribute foreground
+                 * @type "dark" | "light"
+                 * @default ""
+                 * @readonly
+                 */
+                foreground: {reflect: true, value: ''},
+
+                /**
+                 * The paper layer where ink is placed.
+                 *
+                 * @attribute layer
+                 * @type Element
+                 * @readonly
+                 */
+                layer: {reflect: false, value: null},
+
+                /**
+                 * The ink's opacity level.
+                 *
+                 * @attribute opacity
+                 * @type string
+                 * @default ""
+                 */
+                opacity: {reflect: true, value: ''}
+            },
+
+            /**
+             * The opacity list.
+             *
+             * @property opacityList
+             * @type Array
+             * @default ["divider", "hint", "icon", "ripple", "secondary"]
+             * @readonly
+             */
+            opacityList: ['divider', 'hint', 'icon', 'ripple', 'secondary']
+        });
+    </script>
+
+</polymer-element>

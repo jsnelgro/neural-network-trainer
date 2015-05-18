@@ -1,0 +1,122 @@
+<!--
+@license
+Copyright (c) 2015 The ExpandJS authors. All rights reserved.
+This code may only be used under the BSD style license found at https://expandjs.github.io/LICENSE.txt
+The complete set of authors may be found at https://expandjs.github.io/AUTHORS.txt
+The complete set of contributors may be found at https://expandjs.github.io/CONTRIBUTORS.txt
+-->
+
+<!--
+This element is used to add anchor capabilities on the context element.
+It extends the native html `template`.
+
+@element xp-anchor-state
+@description A custom element used to add anchorable capabilities to a context element
+@group states
+@homepage http://www.expandjs.com/elements/xp-anchor-state
+
+@extends template
+
+@dependency polymer Polymer/polymer#^0.5
+@dependency expandjs ExpandJS/expandjs
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../expandjs/expandjs.html">
+
+<polymer-element name="xp-anchor-state" extends="template" attributes="context download href rel target">
+
+    <script>
+        XPElement({
+
+            /**
+             * Refreshes the element.
+             *
+             * @method refresh
+             * @returns {Element}
+             * @private
+             */
+            refresh: function () {
+                var self = this;
+                XP.setAttribute(self.anchor, 'download', (self.href && self.download) || null);
+                XP.setAttribute(self.anchor, 'href', self.href || null);
+                XP.setAttribute(self.anchor, 'rel', (self.href && self.rel) || null);
+                XP.setAttribute(self.anchor, 'target', (self.href && self.target) || null);
+                return self;
+            },
+
+            /*********************************************************************/
+
+            // OBSERVE
+            observe: {
+                'download href rel target': 'refresh'
+            },
+
+            // PUBLISH
+            publish: {
+
+                /**
+                 * The context element's anchor.
+                 *
+                 * @property anchor
+                 * @type Element
+                 */
+                anchor: null,
+
+                /**
+                 * The context element.
+                 *
+                 * @attribute context
+                 * @type Element
+                 */
+                context: {reflect: false, value: null},
+
+                /**
+                 * The anchor's download property's value.
+                 *
+                 * @attribute download
+                 * @type string
+                 * @default ""
+                 */
+                download: {reflect: true, value: ''},
+
+                /**
+                 * The anchor's href property's value.
+                 *
+                 * @attribute href
+                 * @type string
+                 * @default ""
+                 */
+                href: {reflect: true, value: ''},
+
+                /**
+                 * The anchor's rel property's value.
+                 *
+                 * @attribute rel
+                 * @type string
+                 * @default ""
+                 */
+                rel: {reflect: true, value: ''},
+
+                /**
+                 * The anchor's target property's value.
+                 *
+                 * @attribute target
+                 * @type string
+                 */
+                target: {reflect: true, value: null}
+            },
+
+            /**
+             * The context element.
+             *
+             * @property context
+             * @type Element
+             * @readonly
+             * @private
+             */
+//            get context() { return this.host || this.parentNode; }
+        });
+    </script>
+
+</polymer-element>

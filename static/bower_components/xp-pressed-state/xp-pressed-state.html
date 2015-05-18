@@ -1,0 +1,193 @@
+<!--
+@license
+Copyright (c) 2015 The ExpandJS authors. All rights reserved.
+This code may only be used under the BSD style license found at https://expandjs.github.io/LICENSE.txt
+The complete set of authors may be found at https://expandjs.github.io/AUTHORS.txt
+The complete set of contributors may be found at https://expandjs.github.io/CONTRIBUTORS.txt
+-->
+
+<!--
+This element is used to add press capabilities on the context element.
+It extends the native html `template`.
+
+@element xp-pressed-state
+@description A custom element used to add user interaction capabilities to a context element
+@group states
+@homepage http://www.expandjs.com/elements/xp-pressed-state
+
+@extends template
+@mixin xp-targeter http://www.expandjs.com/elements/xp-targeter
+
+@dependency polymer Polymer/polymer#^0.5
+@dependency expandjs ExpandJS/expandjs
+@dependency xp-targeter ExpandJS/xp-targeter
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../expandjs/expandjs.html">
+<link rel="import" href="../xp-targeter/xp-targeter.html">
+
+<polymer-element name="xp-pressed-state" extends="template" attributes="active context disabled pressed target toggleable">
+
+    <script>
+        XPElement({
+
+            // MIXINS
+            mixins: ['xp-targeter'],
+
+            /*********************************************************************/
+
+            /**
+             * Fired when the active state changes.
+             *
+             * @event xp-active
+             * @param {Element} firer
+             * @param {boolean} isActive
+             * @bubbles
+             */
+
+            /**
+             * Fired when the context element is clicked.
+             *
+             * @event xp-activate
+             * @param {Element} firer
+             * @param {Element} target
+             * @param {boolean} isActive
+             * @bubbles
+             * @cancelable
+             */
+
+            /*********************************************************************/
+
+            /**
+             * Presses the context element.
+             *
+             * @method press
+             * @returns {Element}
+             */
+            press: function () {
+                var self = this, target = self.findTarget();
+                if (XP.isPrevented(self.context.fire('xp-activate', {firer: self.context, target: target, isActive: self.active}))) { return self; }
+                if (self.toggleable) { self.active = !self.active; }
+                return self;
+            },
+
+            /*********************************************************************/
+
+            // PUBLISH
+            publish: {
+
+                /**
+                 * If set to true, the element is active.
+                 *
+                 * @attribute active
+                 * @type boolean
+                 * @default false
+                 */
+                active: {reflect: true, value: false},
+
+                /**
+                 * The context element.
+                 *
+                 * @attribute context
+                 * @type Element
+                 */
+                context: {reflect: false, value: null},
+
+                /**
+                 * If set to true, the element is disabled.
+                 *
+                 * @attribute disabled
+                 * @type boolean
+                 * @default false
+                 */
+                disabled: {reflect: true, value: false},
+
+                /**
+                 * If set to true, the element is pressed.
+                 *
+                 * @attribute pressed
+                 * @type boolean
+                 * @default false
+                 * @readonly
+                 */
+                pressed: {reflect: true, value: false},
+
+                /**
+                 * The `id` of the targeted element or the element itself.
+                 *
+                 * @attribute target
+                 * @type Element | string
+                 */
+                target: {reflect: false, value: null},
+
+                /**
+                 * If set to true, pressing will toggle active state on the context element.
+                 *
+                 * @attribute toggleable
+                 * @type boolean
+                 * @default false
+                 */
+                toggleable: {reflect: true, value: false}
+            },
+
+            /**
+             * The context element.
+             *
+             * @property context
+             * @type Element
+             * @readonly
+             * @private
+             */
+//            get context() { return this.host || this.parentNode; },
+
+            /*********************************************************************/
+
+            // OBSERVER
+            activeChanged: function (pre, post) {
+                this.context.fire('xp-active', {firer: this.context, isActive: post});
+            },
+
+            // OBSERVER
+            contextChanged: function (pre, post) {
+                var self = this;
+                if (arguments.length < 2) { return; }
+                if (pre) { XP.unlisten(pre, {click: self.handleClickBound, down: self.handleDownBound, up: self.handleUpBound}); }
+                if (post) { XP.listen(post, {click: self.handleClickBound, down: self.handleDownBound, up: self.handleUpBound}); }
+            },
+
+            // OBSERVER
+            toggleableChanged: function (pre, post) {
+                this.active = this.active && post;
+            },
+
+            /*********************************************************************/
+
+            // LISTENER
+            ready: function () {
+                var self = this;
+                self.handleClickBound = self.handleClick.bind(self);
+                self.handleDownBound  = self.handleDown.bind(self);
+                self.handleUpBound    = self.handleUp.bind(self);
+            },
+
+            /*********************************************************************/
+
+            // HANDLER
+            handleClick: function (event) {
+                return this.disabled ? XP.stop(event) : this.press();
+            },
+
+            // HANDLER
+            handleDown: function () {
+                this.pressed = true;
+            },
+
+            // HANDLER
+            handleUp: function () {
+                this.pressed = false;
+            }
+        });
+    </script>
+
+</polymer-element>
