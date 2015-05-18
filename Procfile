@@ -1,1 +1,1 @@
-web: python web.py --log-file -
+web: gunicorn --worker-class socketio.sgunicorn.GeventSocketIOWorker --log-file=- appy:app
