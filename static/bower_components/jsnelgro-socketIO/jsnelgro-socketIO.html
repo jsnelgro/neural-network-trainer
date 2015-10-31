@@ -15,8 +15,8 @@ Polymer('jsnelgro-socketIO', {
 		self.connected = false;
 		self.training = false;
 		self.threadId = '';
-		// TODO: actually, use location.port instead of hardcoding 5000
-		self.socket = io.connect('https://' + document.domain + ':' + location.port + self.namespace);
+		self.http_type = document.domain === 'localhost' ? 'http://' : 'https://';
+		self.socket = io.connect(self.http_type + document.domain + ':' + location.port + self.namespace);
 		self.socket.on('connect', function() {
 			self.handleSocketConnect(self);
 		});
