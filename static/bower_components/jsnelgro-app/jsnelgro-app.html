@@ -69,6 +69,7 @@
 					<!-- <paper-input disabled floatinglabel="true" value="{{learningRate}} "label="learning rate">Learning Rate</paper-input> -->
 					<paper-button disabled>Remove Behavior</paper-button>
 					<paper-button on-click="{{addColorDefaults}}">Color Defaults</paper-button>
+					<paper-button on-click="{{addMusicDefaults}}">Audio Defaults</paper-button>
 					<paper-button disabled>Save Network</paper-button>
 					<paper-button disabled>Load Network</paper-button>
 
@@ -77,18 +78,18 @@
 			</core-header-panel>
 			<div tool>Brainz</div>
 	    	<jsnelgro-socketIO id="sio"></jsnelgro-socketIO>
-	    	
+
 	    	<!-- <p>associating: {{associating}}</p> -->
 			<!-- <p>training: {{$.sio.training}}, updating?: {{training}}, {{$.outputActions.selectedModel.behavior.name}}</p> -->
 			<div horizontal layout style="height:100%; width: 100%; position: fixed;">
-				
+
 				<div vertical layout start-justified style="position:relative;">
 					<div id="trainingLight"></div>
 					<jsnelgro-video-converter id="videoFeed"></jsnelgro-video-converter center>
 					<core-selector selected="0" id="outputActions">
 						<template repeat="{{behavior in behaviors}}">
 							<div class="outputItem">{{behavior.name}}</div>
-						</template>			  
+						</template>
 					</core-selector>
 					<div layout horizontal>
 						<paper-button raised flex id="addBehaviorBtn" on-click="{{toggleBehaviorConstructor}}">Add Behavior</paper-button>
@@ -107,8 +108,57 @@
 		</jsnelgro-scaffold>
 	</template>
 	<script>
+		function BufferLoader(context, urlList, callback) {
+			this.context = context;
+			this.urlList = urlList;
+			this.onload = callback;
+			this.bufferList = new Array();
+			this.loadCount = 0;
+		}
+
+		BufferLoader.prototype.loadBuffer = function(url, index) {
+			// Load buffer asynchronously
+			var request = new XMLHttpRequest();
+			request.open("GET", url, true);
+			request.responseType = "arraybuffer";
+
+			var loader = this;
+
+			request.onload = function() {
+				// Asynchronously decode the audio file data in request.response
+				loader.context.decodeAudioData(
+					request.response,
+					function(buffer) {
+						if (!buffer) {
+							alert('error decoding file data: ' + url);
+							return;
+						}
+						loader.bufferList[index] = buffer;
+						if (++loader.loadCount == loader.urlList.length)
+							loader.onload(loader.bufferList);
+					},
+					function(error) {
+						console.error('decodeAudioData error', error);
+					}
+				);
+			}
+			request.onerror = function() {
+				alert('BufferLoader: XHR error');
+			}
+			request.send();
+		}
+
+		BufferLoader.prototype.load = function() {
+			for (var i = 0; i < this.urlList.length; ++i)
+			this.loadBuffer(this.urlList[i], i);
+		}
+
 		Polymer('jsnelgro-app', {
 			ready: function() {
+
+				window.AudioContext = window.AudioContext || window.webkitAudioContext;
+				window.context = new AudioContext();
+
 				var self = this;
 				self.currentUserFunction = '(function(){\n\toutput.clear();\n\toutput.log("test");\n})();';
 				self.learningRate = 0.9;
@@ -130,13 +180,13 @@
 				// 	print: self.$.outputBox.print,
 				// 	console: console
 				// }
-				
+
 				// local bubbling events
 				self.addEventListener('video-updated', function(data) {self.handleVideoFeed(self,data);});
 				self.addEventListener('training-started', function(ev){self.training=true;});
 				self.addEventListener('training-ended', function(ev){self.handleTrainingEnded(self);});
 				self.addEventListener('test-results', function(ev){self.handleTestResults(self, ev.detail);});
-				
+
 				// global keyboard events
 				addEventListener('keydown', function(event){self.handleKeyDown(self, event);});
 				addEventListener('keyup', function(event){self.handleKeyUp(self, event);});
@@ -146,7 +196,7 @@
 				var emitMessage = 'run test';
 				if (self.associating) {
 					emitMessage = 'associate';
-				}	
+				}
 				self.socket.emit(emitMessage, {
 					data: imgData,
 					behavior: behavior
@@ -190,11 +240,11 @@
 				if(_name === '') {
 					return;
 				}
-				// TODO: need to sanitize and test the user script before adding to behaviors 
+				// TODO: need to sanitize and test the user script before adding to behaviors
 				var _action = this.currentUserFunction;
 				var newBehavior = {name:_name, action:_action};
 				this.behaviors.push(newBehavior);
-				
+
 				this.$.userBehaviorName.value = '';
 				this.currentUserFunction = '(function(){\n\toutput.clear();\n\toutput.log("test");\n})();';
 				this.toggleBehaviorConstructor();
@@ -210,6 +260,72 @@
 				this.behaviors = [red,green,blue];
 				this.updateLabels(this);
 
+			},
+			addMusicDefaults: function() {
+				var self = this;
+				if(this.networkInitialized === true) {
+					return;
+				}
+				// window.clipPlayer = {};
+				// aud_settings = [100,600,1000];
+				// for (var i = 0; i < aud_settings.length; i++) {
+				// 	var aud = window.clipPlayer['source'+i] = {
+				// 		osc: window.context.createOscillator(),
+				// 		gain: window.context.createGain()
+				// 	};
+				// 	window.clipPlayer['source'+i].osc.connect(window.clipPlayer['source'+i].gain);
+				// 	window.clipPlayer['source'+i].gain.connect(window.context.destination);
+				// 	aud.osc.detune.value = aud_settings[i];
+				// 	aud.osc.start(0);
+				// 	aud.gain.gain.value = 0;
+				//
+				// }
+				// var mute = function() {window.clipPlayer["source0"].gain.gain.value=0;window.clipPlayer["source1"].gain.gain.value=0;window.clipPlayer["source2"].gain.gain.value=0;};
+				// var gainFn = function(i) {var aud = window.clipPlayer["source"+i];aud.gain.gain.value = data.response[i];};
+
+				// var ks = Object.keys(window.clipPlayer);for (var i = 0; i < ks.length; i++) {var aud = window.clipPlayer[ks[i]];aud.gain.gain.value = data.response[i];}
+				// var clip1 = {name:'clip1', action:'(function(){var ks = Object.keys(window.clipPlayer);for (var i = 0; i < ks.length; i++) {var aud = window.clipPlayer[ks[i]];aud.gain.gain.value = data.response[i];}})();'};
+				// var clip2 = {name:'clip2', action:'(function(){var ks = Object.keys(window.clipPlayer);for (var i = 0; i < ks.length; i++) {var aud = window.clipPlayer[ks[i]];aud.gain.gain.value = data.response[i];}})();'};
+				// var clip3 = {name:'clip3', action:'(function(){var ks = Object.keys(window.clipPlayer);for (var i = 0; i < ks.length; i++) {var aud = window.clipPlayer[ks[i]];aud.gain.gain.value = data.response[i];}})();'};
+				// var stop  = {name:'stop', action:'(function(){var ks = Object.keys(window.clipPlayer);for (var i = 0; i < ks.length; i++) {var aud = window.clipPlayer[ks[i]];aud.gain.gain.value = 0;}})();'};
+				// self.behaviors = [clip1, clip2, clip3, stop];
+				// self.updateLabels(self);
+
+
+
+
+				window.finishedLoading = function(bufferList) {
+					window.clipPlayer = {};
+					window.playClip = function(source) {
+						var tempsrc = window.context.createBufferSource();
+						tempsrc.buffer = window.clipPlayer[source].buffer;
+						tempsrc.connect(window.context.destination);
+						tempsrc.start(0);
+						// TODO: delete tempsrc using onend callback 
+					};
+					for (var i = 0; i < bufferList.length; i++) {
+						window.clipPlayer['source'+i] = window.context.createBufferSource();
+						window.clipPlayer['source'+i].buffer = bufferList[i];
+						window.clipPlayer['source'+i].connect(context.destination);
+					}
+					var clip1 = {name:'clip1', action:'(function(){window.playClip("source0");})();'};
+					var clip2 = {name:'clip2', action:'(function(){window.playClip("source1");})();'};
+					var clip3 = {name:'clip3', action:'(function(){window.playClip("source2");})();'};
+					var stop = {name:'stop', action:'(function(){output.log("stopped");})();'};
+					self.behaviors = [clip1, clip2, clip3, stop];
+					self.updateLabels(self);
+				}
+
+				window.myBufferLoader = new BufferLoader(
+					window.context,
+					[
+						'./GalacticaC4.m4a',
+						'./PulseBassC4.m4a',
+						'./VOXthelife.wav'
+					],
+					window.finishedLoading
+				);
+				window.myBufferLoader.load();
 			},
 			removeBehavior:function(self, behavior){
 				// TODO

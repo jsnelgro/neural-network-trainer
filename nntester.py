@@ -10,10 +10,10 @@ from pybrain.structure import LinearLayer, SigmoidLayer
 
 def buildDataset(labels, data):
 	'''
-	builds and returns training and test datasets from user image mappings 
+	builds and returns training and test datasets from user image mappings
 	'''
 	DS = ClassificationDataSet(len(data[0][0].ravel()), 1, nb_classes=len(labels), class_labels=labels)
-	
+
 	for img, label in data:
 		DS.addSample(img.ravel(), [label])
 	DS._convertToOneOfMany()
@@ -32,7 +32,7 @@ def getNetwork(trndata):
 
 	# fnn = buildNetwork( trndata.indim, 5, trndata.outdim, outclass=SoftmaxLayer )
 	trainer = BackpropTrainer( n, dataset=trndata, momentum=0.1, verbose=True, weightdecay=0.01)
-	
+
 	# TODO: return network and trainer here. Make another function for training
 	# for i in range(20):
 		# trainer.trainEpochs(1)
@@ -50,7 +50,8 @@ def getNetwork(trndata):
 
 
 def doTraining(network, trainer):
-	trainer.trainUntilConvergence(maxEpochs=100)
+	print 'training time!'
+	trainer.trainUntilConvergence(maxEpochs=50)
 	# trnresult = percentError( trainer.testOnClassData(),trainer.dataset['class'] )
 	# print "epoch: %4d" % trainer.totalepochs, \
 		# "  train error: %5.2f%%" % trnresult
