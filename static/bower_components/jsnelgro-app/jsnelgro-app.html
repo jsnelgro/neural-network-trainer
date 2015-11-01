@@ -296,21 +296,32 @@
 
 				window.finishedLoading = function(bufferList) {
 					window.clipPlayer = {};
-					window.playClip = function(source) {
+					window.pitches = [100, 600, 1100];
+					window.nextBeat = true;
+					window.playClip = function(source, g) {
+						if(window.nextBeat == false) {
+							return;
+						}
 						var tempsrc = window.context.createBufferSource();
 						tempsrc.buffer = window.clipPlayer[source].buffer;
-						tempsrc.connect(window.context.destination);
+						tempsrc.detune.value = window.pitches[Math.floor(Math.random()*window.pitches.length)];
+						var tempgain = window.context.createGain();
+						tempgain.gain.value = g;
+						tempsrc.connect(tempgain);
+						tempgain.connect(window.context.destination);
 						tempsrc.start(0);
-						// TODO: delete tempsrc using onend callback 
+						window.nextBeat = false;
+						setTimeout(function(){window.nextBeat=true;}, 50);
+						// tempsrc.on('ended', (arguments) => {tempsrc.disconnect(window.context.destination);delete(tempsrc);});
 					};
 					for (var i = 0; i < bufferList.length; i++) {
 						window.clipPlayer['source'+i] = window.context.createBufferSource();
 						window.clipPlayer['source'+i].buffer = bufferList[i];
 						window.clipPlayer['source'+i].connect(context.destination);
 					}
-					var clip1 = {name:'clip1', action:'(function(){window.playClip("source0");})();'};
-					var clip2 = {name:'clip2', action:'(function(){window.playClip("source1");})();'};
-					var clip3 = {name:'clip3', action:'(function(){window.playClip("source2");})();'};
+					var clip1 = {name:'clip1', action:'(function(){window.playClip("source0", data.response[0]);})();'};
+					var clip2 = {name:'clip2', action:'(function(){window.playClip("source1", data.response[1]);})();'};
+					var clip3 = {name:'clip3', action:'(function(){window.playClip("source2", data.response[2]);})();'};
 					var stop = {name:'stop', action:'(function(){output.log("stopped");})();'};
 					self.behaviors = [clip1, clip2, clip3, stop];
 					self.updateLabels(self);
@@ -319,9 +330,9 @@
 				window.myBufferLoader = new BufferLoader(
 					window.context,
 					[
-						'./GalacticaC4.m4a',
 						'./PulseBassC4.m4a',
-						'./VOXthelife.wav'
+						'./GalacticaC4.m4a',
+						'./boogie.wav'
 					],
 					window.finishedLoading
 				);
