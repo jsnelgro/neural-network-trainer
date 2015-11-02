@@ -51,7 +51,7 @@ def getNetwork(trndata):
 
 def doTraining(network, trainer):
 	print 'training time!'
-	trainer.trainUntilConvergence(maxEpochs=50)
+	trainer.trainUntilConvergence(maxEpochs=100)
 	# trnresult = percentError( trainer.testOnClassData(),trainer.dataset['class'] )
 	# print "epoch: %4d" % trainer.totalepochs, \
 		# "  train error: %5.2f%%" % trnresult

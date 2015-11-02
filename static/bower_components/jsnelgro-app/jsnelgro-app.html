@@ -312,17 +312,16 @@
 						tempsrc.start(0);
 						window.nextBeat = false;
 						setTimeout(function(){window.nextBeat=true;}, 50);
-						// tempsrc.on('ended', (arguments) => {tempsrc.disconnect(window.context.destination);delete(tempsrc);});
 					};
 					for (var i = 0; i < bufferList.length; i++) {
 						window.clipPlayer['source'+i] = window.context.createBufferSource();
 						window.clipPlayer['source'+i].buffer = bufferList[i];
 						window.clipPlayer['source'+i].connect(context.destination);
 					}
-					var clip1 = {name:'clip1', action:'(function(){window.playClip("source0", data.response[0]);})();'};
-					var clip2 = {name:'clip2', action:'(function(){window.playClip("source1", data.response[1]);})();'};
-					var clip3 = {name:'clip3', action:'(function(){window.playClip("source2", data.response[2]);})();'};
-					var stop = {name:'stop', action:'(function(){output.log("stopped");})();'};
+					var clip1 = {name:'saw wave', action:'(function(){output.clear();output.log("football");window.playClip("source0", data.response[0]);})();'};
+					var clip2 = {name:'sine wave', action:'(function(){output.clear();output.log("face");window.playClip("source1", data.response[1]);})();'};
+					var clip3 = {name:'triangle wave', action:'(function(){output.clear();output.log("coffeepot");window.playClip("source2", data.response[2]);})();'};
+					var stop = {name:'stop', action:'(function(){output.clear();output.log("stopped");})();'};
 					self.behaviors = [clip1, clip2, clip3, stop];
 					self.updateLabels(self);
 				}
